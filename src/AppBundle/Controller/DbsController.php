@@ -128,33 +128,60 @@ class DbsController extends Controller{
                 return $this->render('dbs/newtable.html.twig');
             }
         } */
-        $queryString = '';
+        
         for ($i=0; $i < count($table_data['field_name']); $i++) {
+            $queryString = ' ';
             if(isset($table_data['field_name'][$i]) && !empty($table_data['field_name'][$i])){
                     //email varchar(255) ,
-                    if(isset($table_data['field_type'][$i])){
-
+                    $queryString .= $table_data['field_name'][$i].' ';
+                    $queryString .=  $table_data['field_type'][$i].'(';
+                    if(isset($table_data['field_length'][$i]) && !empty($table_data['field_length'][$i])){
+                        $queryString .= $table_data['field_length'][$i].')';
                     }
                     else{
-
+                        switch ($table_data['field_type'][$i]) {
+                            case 'varchar':
+                                $queryString .= '255)';
+                                break;
+                            case 'int':
+                                $queryString .= '11)';
+                                break;
+                            case 'text':
+                                $queryString .= '2000)';
+                                break;
+                        }
                     }
-                    if(isset($table_data['field_length'][$i])){
-
+                    if(isset($table_data['field_null'][$i])){
+                        $queryString .= ' NULL';
                     }
                     else{
-                        
+                        $queryString .= ' NOT NULL';
                     }
-
             }
             else{
                 $this->addFlash('error','Field name is mandatory.');
                 return $this->render('dbs/newtable.html.twig');
             }
+
+            //if($i != (count($table_data['field_name']) - 1) )
+            $queryString .= ', ';
+            echo $queryString;
         }   
 
-        //if($table_data['field_primary'])
-        return new jsonResponse(array("affd"=>"afsa"));
-        //return $this->render('dbs/newtable.html.twig');
+        $sql ="CREATE TABLE IF NOT EXISTS bluedart (id serial,";
+        $sql .= $queryString;
+        $sql .= "PRIMARY KEY(id) );" ;
+        try {
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            $this->addFlash('success','You table has been created successfully.');
+            return $this->redirectToRoute('dbs_index');
+        } catch (Exception $e) {
+            $this->addFlash('error','Some error in creating table.');
+        }
+        
+        //return new jsonResponse(array("affd"=>"afsa"));
+        return $this->render('dbs/newtable.html.twig');
     }
 
 
