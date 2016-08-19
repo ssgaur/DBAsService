@@ -78,9 +78,7 @@ class DbsController extends Controller{
      * @Method("POST")
      */
     public function createNewTableAction(Request $request){
-
         $table_data = $request->request->all();
-
         if(empty($table_data['new_table_name'])){
             $this->addFlash('error','Please provide some table name.');
             return $this->render('dbs/newtable.html.twig');
@@ -91,7 +89,6 @@ class DbsController extends Controller{
             $this->addFlash('error','Each name must be non-empty and unique.');
             return $this->render('dbs/newtable.html.twig');
         }
-        //print_r($table_data);
         $conn = $this->get('database_connection');
         $sm = $conn->getSchemaManager();
 
@@ -99,21 +96,6 @@ class DbsController extends Controller{
             $this->addFlash('error','This table already exists in connected database. See left sidebar');
             return $this->render('dbs/newtable.html.twig');
         }
-
-        // if(!array_key_exists('field_length' ,$table_data)){
-        //     $this->addFlash('error','Every Column must define the length');
-        //     return $this->render('dbs/newtable.html.twig');
-        // }
-
-        /*
-                $table_data['field_name']
-                $table_data['field_type']
-                $table_data['field_length']
-                $table_data['field_null']
-                $table_data['field_ai']
-                $table_data['field_primary']
-        */
-        print_r($table_data);
 
         /*
         for ($i=0; $i < count($table_data['field_name']); $i++) { 
@@ -129,6 +111,8 @@ class DbsController extends Controller{
             }
         } */
         
+        $sql ="CREATE TABLE IF NOT EXISTS ".$table_data['new_table_name']." (id serial,";
+
         for ($i=0; $i < count($table_data['field_name']); $i++) {
             $queryString = ' ';
             if(isset($table_data['field_name'][$i]) && !empty($table_data['field_name'][$i])){
@@ -162,25 +146,19 @@ class DbsController extends Controller{
                 $this->addFlash('error','Field name is mandatory.');
                 return $this->render('dbs/newtable.html.twig');
             }
-
-            //if($i != (count($table_data['field_name']) - 1) )
             $queryString .= ', ';
-            echo $queryString;
+            $sql .= $queryString;
         }   
-
-        $sql ="CREATE TABLE IF NOT EXISTS bluedart (id serial,";
-        $sql .= $queryString;
         $sql .= "PRIMARY KEY(id) );" ;
         try {
             $stmt = $conn->prepare($sql);
             $stmt->execute();
-            $this->addFlash('success','You table has been created successfully.');
+             $this->addFlash('success','You table has been created successfully.');
             return $this->redirectToRoute('dbs_index');
         } catch (Exception $e) {
             $this->addFlash('error','Some error in creating table.');
         }
         
-        //return new jsonResponse(array("affd"=>"afsa"));
         return $this->render('dbs/newtable.html.twig');
     }
 
@@ -201,7 +179,6 @@ class DbsController extends Controller{
             $this->addFlash('error','This table does not exists in connected database !!!');
             return $this->render('dbs/index.html.twig',array("tables"=>$tables));
         }
-        print_r($tableColumns);
         return $this->render('dbs/browseTable.html.twig',array(
                                     "tableColumns"  => $tableColumns
                                         ));

@@ -15,10 +15,9 @@
                             <div class="sort-num-box">
                                 <div class="sort-box"> Sort By:   
                                       <select name="carlist" form="carform">
-                                        <option value="volvo">Column 1</option>
-                                        <option value="volvo">Column 2</option>
-                                        <option value="volvo">Column 3</option>
-                                        <option value="volvo">Column 4  </option>
+                                        {% for key,value in tableColumns %}
+                                            <option value="volvo">{{ key }}</option>
+                                        {% endfor %}
                                       </select> 
                                       <input type="submit" value="Go" class="btn btn-primary btn-xs">
                                 </div>
@@ -37,11 +36,9 @@
                             <thead> 
                               <tr> 
                                 <th>Action</th> 
-                                <th>id</th> 
-                                <th>Column 1</th> 
-                                <th>Column 2</th> 
-                                <th>Column 3</th> 
-                                <th>Column 4</th> 
+                                {% for key,value in tableColumns %}
+                                    <th>{{ key }}</th> 
+                                {% endfor %}
                               </tr> 
                             </thead> 
                             <tbody> 
@@ -127,10 +124,9 @@
                         <div class="sort-num-box-bottom">
                                 <div class="sort-box"> Sort By:   
                                       <select name="carlist" form="carform">
-                                        <option value="volvo">Column 1</option>
-                                        <option value="volvo">Column 2</option>
-                                        <option value="volvo">Column 3</option>
-                                        <option value="volvo">Column 4  </option>
+                                        {% for key,value in tableColumns %}
+                                            <option value="volvo">{{ key }}</option>
+                                        {% endfor %}
                                       </select> 
                                       <input type="submit" value="Go" class="btn btn-primary btn-xs">
                                 </div>
