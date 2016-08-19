@@ -28,6 +28,9 @@
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
+h3{
+	text-align: center;	
+}
 .top-buffer { margin-top:10px; }
 ul.tabs {
 	margin: 0;

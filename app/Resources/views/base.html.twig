@@ -41,37 +41,21 @@
       <div class="container">
           <div class="row ">
             <div class="col-sm-2">
-                <div class="sidebar-select border-1x">
-                    <select name="carlist" form="carform">
-                        <option value="volvo">Table 1</option>
-                        <option value="volvo">Table 2</option>
-                        <option value="volvo">Table 3</option>
-                        <option value="volvo">Table 4  </option>
-                    </select> 
-                    <input type="submit" value="Go" class="btn btn-primary btn-xs">
-                </div>
-                <div class="sidebar border-1x top-buffer ">
-                    <ul class="list-group">
-                      <li class="list-group-item">
-                        <span class="badge">14</span>
-                        Cras justo odio
-                      </li>
-                      <li class="list-group-item">
-                        <span class="badge">14</span>
-                        Cras justo odio
-                      </li>
-                      <li class="list-group-item">
-                        <span class="badge">14</span>
-                        Cras justo odio
-                      </li>
-                    </ul>
-                </div>
-              </div>
-              <div class="col-sm-10">
+                {{  render(controller('AppBundle:Dbs:getTablesInfo')) }}
+            </div>
+            <div class="col-sm-10">
                 <div class="main-container">
+                    <div class="row"> 
+                        {% for flash_message  in app.session.flashbag.get('success') %}
+                         <div class="alert alert-success"> {{ flash_message }} </div>
+                        {% endfor %}
+                        {% for flash_message  in app.session.flashbag.get('error') %}
+                           <div class="alert alert-danger"> {{ flash_message }} </div>
+                        {% endfor %}
+                    </div>
                     <div class="row ">
                         <div class="current-tbl-info border-1x">
-                            Datbasename -> hyperlink
+                            Current Table: <strong>SomeTable</strong>
                         </div>
                     </div>
                     {% block body %}{% endblock %}

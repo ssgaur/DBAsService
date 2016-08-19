@@ -1,7 +1,6 @@
 {% extends 'base.html.twig' %}
-
 {% block body %}
-	 				<div class="row top-buffer  border-1x">
+          <div class="row top-buffer  border-1x">
                         <table class="table table-striped"> 
                             <div class="sort-num-box">
                                 <input type="text" placeholder="new table name">
@@ -12,23 +11,23 @@
                               <tr> 
                                 <th>#</th> 
                                 <th>Table Name</th> 
-                                <th>Records</th> 
                                 <th>Action</th> 
                               </tr> 
                             </thead> 
                             <tbody> 
-                              <tr> 
-                                <td> 1 </td> 
-                                <td>user</td> 
-                                <td>100</td> 
-                                <td>
-                                  <a href="#" class="btn btn-success btn-xs">Browse</a>
-                                  <a href="#" class="btn btn-primary btn-xs">Structure</a>
-                                  <a href="#" class="btn btn-primary btn-xs">Insert</a>
-                                  <a href="#" class="btn btn-danger btn-xs">Drop</a>
-                                </td> 
-                              </tr> 
-                              
+                              {% for table in tables %}
+                                  <tr> 
+                                    <td> {{ loop.index }} </td> 
+                                    <td>{{ table }}</td> 
+                                    <td>
+                                      <a href="#" class="btn btn-success btn-xs">Browse</a>
+                                      <a href="#" class="btn btn-primary btn-xs">Structure</a>
+                                      <a href="#" class="btn btn-primary btn-xs">Insert</a>
+                                      <a href="/dbs/deleteTable/{{table}}" class="btn btn-danger btn-xs">Drop</a>
+                                    </td> 
+                                  </tr> 
+                              {% endfor %}
+
                             </tbody> 
                         </table>
                     </div>

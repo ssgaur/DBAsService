@@ -1,0 +1,50 @@
+
+				<div class="sidebar-select border-1x">
+					Current Database:
+					<strong>"{{ databasename }}" </strong>
+				</div>
+	
+				<div class="sidebar-select border-1x">
+                    <select name="carlist" form="carform">	
+                    	<option value=""> Select Tables </option>
+                    	{% for name in tables %}
+                        	<option value="{{ name }}">{{ name }}</option>
+                        {% endfor %}
+                    </select> 
+                    <input type="submit" value="Go" class="btn btn-primary btn-xs">
+                </div>
+                <div class="sidebar border-1x top-buffer ">
+                	<h3>Tables </h3>
+                    <ul class="list-group">
+                      	{% for name in tables %}
+						        <li class="list-group-item">
+						            {# <span class="badge">14</span> #}
+						           
+						            {% if name | length > 15 %}
+						            		 <strong>{{ name[0:14] }}</strong>
+						            {% else %}
+						            		{{ name }}
+						            {% endif %}
+						        </li>
+						{% endfor %}
+                    </ul>
+                </div>
+
+                <div class="sidebar border-1x top-buffer ">
+                	<h3> Databases</h3>
+                    <ul class="list-group">
+                      	{% for dbname in databases %}
+						        <li class="list-group-item">
+						            <strong>
+						            	{% if dbname | length > 15 %}
+						            		{{ dbname[0:14] }}...
+						            	{% else %}
+						            		{{ dbname }}
+						            	{% endif %}
+						            </strong>
+						        </li>
+						{% endfor %}
+                    </ul>
+                </div>
+
+                
