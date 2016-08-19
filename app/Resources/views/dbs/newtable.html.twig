@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="row top-buffer  border-1x">
+              <form method="post" action="{{ path('dbs_create_new_table') }}" name="new_table_form">
+                        <table class="table table-striped" id="newtable-create"> 
+                            <div class="sort-num-box">
+                                <strong>Table Name (Unique):</strong> <input type="text" name="new_table_name" class="" placeholder="New table name">
+                            </div>
+                            <thead> 
+                              <tr> 
+                                <th>Name</th> 
+                                <th>Type</th> 
+                                <th>Length</th> 
+                                <th>Nullable</th> 
+                              </tr> 
+                            </thead> 
+                            <tbody> 
+                              <tr> 
+                                <td> <input type="text" name="field_name[0]"> </td> 
+                                <td>
+                                    <select  name="field_type[0]">
+                                        <option selected="selected" value="varchar">varchar</option>
+                                        <option value="int">integer</option>
+                                        <option value="text">text</option>
+                                        <option value="datetime">datetime</option>
+                                      </select>
+                                </td> 
+                                <td><input type="text"  name="field_length[0]"></td> 
+                                <td><input type="checkbox" name="field_null[0]"></td> 
+                              </tr> 
+                            </tbody> 
+                        </table>
+                        <div class="sort-num-box-bottom">
+                                <div class="sort-box">   </div>
+                                <div class="num-row-box">
+                                      <input type="submit" value="Create Now" class="btn btn-primary btn-xs">
+                                      OR
+                                      <a href="#"  id="new-table-column" class="btn btn-primary btn-xs"> Add One More Column </a>
+                                </div>
+                        </div>
+                    </div>
+              </form>
+{% endblock %}

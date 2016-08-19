@@ -5,6 +5,9 @@ namespace AppBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 class DbsController extends Controller{
      /**
@@ -62,14 +65,119 @@ class DbsController extends Controller{
         $conn->close();
         return $this->render('dbs/index.html.twig',array("tables"=>$tables));
     }
+
+    /**
+     * @Route("/dbs/newTable", name="dbs_new_table")
+     */
+    public function newTableAction(){
+        return $this->render('dbs/newtable.html.twig');
+    }
     
+    /**
+     * @Route("/dbs/createNewTable", name="dbs_create_new_table")
+     * @Method("POST")
+     */
+    public function createNewTableAction(Request $request){
+
+        $table_data = $request->request->all();
+
+        if(empty($table_data['new_table_name'])){
+            $this->addFlash('error','Please provide some table name.');
+            return $this->render('dbs/newtable.html.twig');
+        }
+
+        // All column name must be unique. If duplicates send error
+        if(count($table_data['field_name']) != count( array_unique($table_data['field_name']))){
+            $this->addFlash('error','Each name must be non-empty and unique.');
+            return $this->render('dbs/newtable.html.twig');
+        }
+        //print_r($table_data);
+        $conn = $this->get('database_connection');
+        $sm = $conn->getSchemaManager();
+
+        if($sm->tablesExist(array($table_data['new_table_name']))){
+            $this->addFlash('error','This table already exists in connected database. See left sidebar');
+            return $this->render('dbs/newtable.html.twig');
+        }
+
+        // if(!array_key_exists('field_length' ,$table_data)){
+        //     $this->addFlash('error','Every Column must define the length');
+        //     return $this->render('dbs/newtable.html.twig');
+        // }
+
+        /*
+                $table_data['field_name']
+                $table_data['field_type']
+                $table_data['field_length']
+                $table_data['field_null']
+                $table_data['field_ai']
+                $table_data['field_primary']
+        */
+        print_r($table_data);
+
+        /*
+        for ($i=0; $i < count($table_data['field_name']); $i++) { 
+            if( isset($table_data['field_name'][$i]) && isset($table_data['field_type'][$i]) &&
+                    isset($table_data['field_length'][$i]) && !empty($table_data['field_name'][$i]) && 
+                    !empty($table_data['field_type'][$i]) && !empty($table_data['field_length'][$i]) 
+                ){
+
+            }   
+            else{
+                $this->addFlash('error','Field name, type and length are mandatory.');
+                return $this->render('dbs/newtable.html.twig');
+            }
+        } */
+        $queryString = '';
+        for ($i=0; $i < count($table_data['field_name']); $i++) {
+            if(isset($table_data['field_name'][$i]) && !empty($table_data['field_name'][$i])){
+                    //email varchar(255) ,
+                    if(isset($table_data['field_type'][$i])){
+
+                    }
+                    else{
+
+                    }
+                    if(isset($table_data['field_length'][$i])){
+
+                    }
+                    else{
+                        
+                    }
+
+            }
+            else{
+                $this->addFlash('error','Field name is mandatory.');
+                return $this->render('dbs/newtable.html.twig');
+            }
+        }   
+
+        //if($table_data['field_primary'])
+        return new jsonResponse(array("affd"=>"afsa"));
+        //return $this->render('dbs/newtable.html.twig');
+    }
+
 
 
     /**
      * @Route("/dbs/browseTable/{tablename}", name="dbs_browse_table")
      */
     public function browseTableAction($tablename){
-        return $this->render('dbs/browseTable.html.twig',array("tables"=>$tables));
+        $conn = $this->get('database_connection');
+        $sm = $conn->getSchemaManager();
+
+        $tables = $sm->listTableNames();
+
+        $tableColumns = $sm->listTableColumns($tablename);
+
+        if(!$sm->tablesExist(array($tablename))){
+            $this->addFlash('error','This table does not exists in connected database !!!');
+            return $this->render('dbs/index.html.twig',array("tables"=>$tables));
+        }
+        print_r($tableColumns);
+        return $this->render('dbs/browseTable.html.twig',array(
+                                    "tableColumns"  => $tableColumns
+                                        ));
     }
 
 
@@ -94,14 +202,6 @@ class DbsController extends Controller{
 
 
     
-
-    /**
-     * @Route("/dbs/some", name="dbs_home")
-     */
-    public function someAction(Request $request){
-        // replace this example code with whatever you need
-        return $this->render('dbs/some.html.twig');
-    }
 
     /**
      * @Route("/dbs/createTable", name="dbs_create_table")
@@ -123,33 +223,4 @@ class DbsController extends Controller{
 		$conn->close();
 	  	die("worked");
     }	
-
-    
-
-  	
-  	/**
-     * @Route("/dbs/showTables", name="dbs_show_table")
-     */
-  	public function showTablesAction(Request $request){
-    	//get connection
-		$conn = $this->get('database_connection');
-		$sm = $conn->getSchemaManager();
-		$tables = $sm->listTableNames(); 
-		
-        $dbname = $sm->listDatabases();
-
-        $dncurn = $conn->getDatabase();
-		// $results = array();
-		// while ($row = $stmt->fetch()) {
-  		//  	array_push($results, $row);
-		// }
-		// $conn->close();
-		//print_r($dbname);
-        //echo $dncurn;
-        var_dump($dncurn);
-
-		die("fcuk");
-	  	//return new JsonResponse(array('name' => $name));
-    }	
-
 }
