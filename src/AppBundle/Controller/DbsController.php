@@ -2,28 +2,31 @@
 
 namespace AppBundle\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use AppBundle\Utility\Utility;
+
 
 class DbsController extends Controller{
-     /**
-     * @Route("/dbs/index", name="dbs_index")
-     */
-    public function indexAction(){
-        $conn = $this->get('database_connection');
-        $sm = $conn->getSchemaManager();
-        $tables = $sm->listTableNames();
-        $conn->close();
-        return $this->render('/dbs/index.html.twig',array("tables"=>$tables));
+
+    /**
+     * @Route("/dbs/lol", name="dbs_lol")
+    */
+    public function lol(){
+        $s = new Utility();
+        $x  = $s->createTABLE($this->get('service_container'));
+        return new JsonResponse(array("adf"=>$x));
     }
 
     /**
      * @Route("/dbs/getTablesInfo", name="dbs_get_table_info")
-     */
+    */
     public function getTablesInfoAction(){
         $conn = $this->get('database_connection');
         $currentDBName = $conn->getDatabase();
@@ -39,11 +42,20 @@ class DbsController extends Controller{
                                       "databasename"=> $currentDBName));
     }
 
+    /**
+     * @Route("/dbs/index", name="dbs_index")
+    */
+    public function indexAction(){
+        $conn = $this->get('database_connection');
+        $sm = $conn->getSchemaManager();
+        $tables = $sm->listTableNames();
+        $conn->close();
+        return $this->render('/dbs/index.html.twig',array("tables"=>$tables));
+    }
    
-
     /**
      * @Route("/dbs/deleteTable/{tablename}", name="dbs_delete_table")
-     */
+    */
     public function deleteTableAction($tablename){
         $conn = $this->get('database_connection');
         $sm = $conn->getSchemaManager();
@@ -98,19 +110,27 @@ class DbsController extends Controller{
         }
         $sql ="CREATE TABLE IF NOT EXISTS ".$table_data['new_table_name']." (id serial,";
 
+        $fieldStringForEntityGeneratory = '';
         for ($i=0; $i < count($table_data['field_name']); $i++) {
             $queryString = ' ';
             if(isset($table_data['field_name'][$i]) && !empty($table_data['field_name'][$i])){
                     //email varchar(255) ,
                     $queryString .= $table_data['field_name'][$i].' ';
+                    $fieldStringForEntityGeneratory .= $table_data['field_name'][$i].":";
 
-                    if($table_data['field_type'][$i] == "text")
+                    if($table_data['field_type'][$i] == "text"){
                         $queryString .= "varchar ";
-                    else 
+                        $fieldStringForEntityGeneratory .="varchar";
+                    }
+                    else {
                         $queryString .=  $table_data['field_type'][$i];
+                        $fieldStringForEntityGeneratory .= $table_data['field_type'][$i];
+                    }
                     if(isset($table_data['field_length'][$i]) && !empty($table_data['field_length'][$i])){
-                        if($table_data['field_type'][$i] == 'varchar' || $table_data['field_type'][$i] == 'text')
+                        if($table_data['field_type'][$i] == 'varchar' || $table_data['field_type'][$i] == 'text'){
                             $queryString .= '('.$table_data['field_length'][$i].')';
+                            $fieldStringForEntityGeneratory .="(".$table_data['field_length'][$i].") ";
+                        }
                     }
                     else{
                         switch ($table_data['field_type'][$i]) {
@@ -124,6 +144,7 @@ class DbsController extends Controller{
                                 $queryString .= ' ';
                                 break;
                         }
+                        $fieldStringForEntityGeneratory .=" ";
                     }
                     if(isset($table_data['field_null'][$i])){
                         $queryString .= ' NULL';
@@ -144,6 +165,10 @@ class DbsController extends Controller{
             $stmt = $conn->prepare($sql);
             $stmt->execute();
             $this->addFlash('success','You table has been created successfully.');
+
+            $s = new Utility();
+            $x  = $s->createTABLE($this->get('service_container'), $fieldStringForEntityGeneratory , $table_data['new_table_name']);
+
             return $this->redirectToRoute('dbs_index');
         } catch (Exception $e) {
             $this->addFlash('error','Some error in creating table.');
@@ -254,33 +279,31 @@ class DbsController extends Controller{
 
         $tableColumns = array();
         $i = 0;
+        array_shift($tblClm);
         foreach ($tblClm as $column => $property) {
-            if($i != 0){
                 $tableColumns[$column] = array();
                 $tableColumns[$column]['size'] = $tblClm[$column]->getLength();
                 $tableColumns[$column]['notnull'] = $tblClm[$column]->getNotnull();
                 $tableColumns[$column]['type'] = (string) $tblClm[$column]->getType();
                 $query->set($column,'?');
-            }
-            $i++;
         }
 
         $i = 0;
+        array_shift($table_data['row']);
         foreach ($table_data['row'] as $columnName => $value) {
-            if($i != 0){
                 $columnName  = str_replace("'", "", $columnName);
                 if($tableColumns[$columnName]['type'] == 'Integer' )
                     $query->setParameter($i, (int)$value);
                 else
                     $query->setParameter($i, $value);
-            }
             $i++;
         }
         //$query->setParameter($i,(int)$editId);
 
         try {
             $result = $query->execute();
-            $this->addFlash('success','One row has been inserted successfully !!!');
+            $this->addFlash('success','One row has been Updated successfully !!!');
+            return $this->redirectToRoute('dbs_browse_table', array('tablename' => $tablename), 301);
         } catch (Exception $e) {
             $this->addFlash('error','This table does not exists in connected database !!!');
         }
@@ -420,41 +443,4 @@ class DbsController extends Controller{
                                         ));
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-    /**
-     * @Route("/dbs/createTable", name="dbs_create_table")
-     */
-    public function createTableAction(Request $request){
-    	//get connection
-		$conn = $this->get('database_connection');
-		//run a query
-		$queryBuilder = $conn->createQueryBuilder();
-
-		$sql ="CREATE TABLE IF NOT EXISTS bluedart (
-					email varchar(255) ,
-					id serial ,
-					PRIMARY KEY(id)
-				);" ;
-
-		$stmt = $conn->prepare($sql);
-		$stmt->execute();
-		$conn->close();
-	  	die("worked");
-    }	
 }
