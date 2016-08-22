@@ -96,21 +96,6 @@ class DbsController extends Controller{
             $this->addFlash('error','This table already exists in connected database. See left sidebar');
             return $this->render('dbs/newtable.html.twig');
         }
-
-        /*
-        for ($i=0; $i < count($table_data['field_name']); $i++) { 
-            if( isset($table_data['field_name'][$i]) && isset($table_data['field_type'][$i]) &&
-                    isset($table_data['field_length'][$i]) && !empty($table_data['field_name'][$i]) && 
-                    !empty($table_data['field_type'][$i]) && !empty($table_data['field_length'][$i]) 
-                ){
-
-            }   
-            else{
-                $this->addFlash('error','Field name, type and length are mandatory.');
-                return $this->render('dbs/newtable.html.twig');
-            }
-        } */
-        
         $sql ="CREATE TABLE IF NOT EXISTS ".$table_data['new_table_name']." (id serial,";
 
         for ($i=0; $i < count($table_data['field_name']); $i++) {
@@ -118,20 +103,25 @@ class DbsController extends Controller{
             if(isset($table_data['field_name'][$i]) && !empty($table_data['field_name'][$i])){
                     //email varchar(255) ,
                     $queryString .= $table_data['field_name'][$i].' ';
-                    $queryString .=  $table_data['field_type'][$i].'(';
+
+                    if($table_data['field_type'][$i] == "text")
+                        $queryString .= "varchar ";
+                    else 
+                        $queryString .=  $table_data['field_type'][$i];
                     if(isset($table_data['field_length'][$i]) && !empty($table_data['field_length'][$i])){
-                        $queryString .= $table_data['field_length'][$i].')';
+                        if($table_data['field_type'][$i] == 'varchar' || $table_data['field_type'][$i] == 'text')
+                            $queryString .= '('.$table_data['field_length'][$i].')';
                     }
                     else{
                         switch ($table_data['field_type'][$i]) {
                             case 'varchar':
-                                $queryString .= '255)';
-                                break;
-                            case 'int':
-                                $queryString .= '11)';
+                                $queryString .= '(255)';
                                 break;
                             case 'text':
-                                $queryString .= '2000)';
+                                $queryString .= '(2000)';
+                                break;
+                            default:
+                                $queryString .= ' ';
                                 break;
                         }
                     }
@@ -153,12 +143,11 @@ class DbsController extends Controller{
         try {
             $stmt = $conn->prepare($sql);
             $stmt->execute();
-             $this->addFlash('success','You table has been created successfully.');
+            $this->addFlash('success','You table has been created successfully.');
             return $this->redirectToRoute('dbs_index');
         } catch (Exception $e) {
             $this->addFlash('error','Some error in creating table.');
         }
-        
         return $this->render('dbs/newtable.html.twig');
     }
 
@@ -170,25 +159,266 @@ class DbsController extends Controller{
     public function browseTableAction($tablename){
         $conn = $this->get('database_connection');
         $sm = $conn->getSchemaManager();
-
         $tables = $sm->listTableNames();
 
-        $tableColumns = $sm->listTableColumns($tablename);
-
+        $tblClm = $sm->listTableColumns($tablename);
         if(!$sm->tablesExist(array($tablename))){
             $this->addFlash('error','This table does not exists in connected database !!!');
             return $this->render('dbs/index.html.twig',array("tables"=>$tables));
         }
+
+        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder->select('*')->from($tablename);
+
+        $tableData = array();
+        try {
+            $result = $queryBuilder->execute()->fetchAll();
+            $tableData = $result;
+        } catch (Exception $e) {
+            $this->addFlash('error','This table does not exists in connected database !!!');
+        }
+
         return $this->render('dbs/browseTable.html.twig',array(
-                                    "tableColumns"  => $tableColumns
+                                    "tableColumns"  => $tblClm,
+                                    "tableData" => $tableData,
+                                    "tablename" =>$tablename
+                                        ));
+    }
+
+    /**
+     * @Route("/dbs/editRowInTable/{tablename}/{id}", name="dbs_edit_row_in_table")
+     */
+    public function editRowInTableAction($tablename,$id){
+        $conn = $this->get('database_connection');
+        $sm = $conn->getSchemaManager();
+        $tables = $sm->listTableNames();
+        if(!$sm->tablesExist(array($tablename))){
+            $this->addFlash('error','This table does not exists in connected database !!!');
+            return $this->render('dbs/index.html.twig',array("tables"=>$tables));
+        }
+
+        $tables = $sm->listTableNames();
+
+        $tblClm = $sm->listTableColumns($tablename);
+        $tableColumns = array();
+        foreach ($tblClm as $column => $property) {
+            $tableColumns[$column] = array();
+            $tableColumns[$column]['size'] = $tblClm[$column]->getLength();
+            $tableColumns[$column]['notnull'] = $tblClm[$column]->getNotnull();
+            $tableColumns[$column]['type'] = (string) $tblClm[$column]->getType();
+        }
+
+        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder->select('*')->from($tablename)->where('id = :id');
+        $queryBuilder->setParameter(':id',(int)$id);
+        $rowData = array();
+        try {
+            $result = $queryBuilder->execute()->fetchAll();
+            $rowData = $result;
+        } catch (Exception $e) {
+            $this->addFlash('error','This table does not exists in connected database !!!');
+        }
+        return $this->render('dbs/editTableRow.html.twig',array(
+                                    "tableColumns"  => $tblClm,
+                                    "tablename" => $tablename,
+                                    "rowData" => $rowData[0]
+                                        ));
+    }
+
+
+    /**
+     * @Route("/dbs/updateRowInTable", name="dbs_update_row_in_table")
+     * @Method("POST")
+     */
+    public function updateRowInTableAction(Request $request){
+        $table_data = $request->request->all();
+        $tablename = $table_data['tablename'];
+        $editId = $table_data['editId'];
+        $conn = $this->get('database_connection');
+        $queryBuilder = $conn->createQueryBuilder();
+        $sm = $conn->getSchemaManager();
+        $tables = $sm->listTableNames();
+        if(!$sm->tablesExist(array($tablename))){
+            $this->addFlash('error','This table does not exists in connected database !!!');
+            return $this->render('dbs/index.html.twig',array("tables"=>$tables));
+        }
+
+        $tblClm = $sm->listTableColumns($tablename);
+
+        $setArray = array();
+        foreach ($table_data['row'] as $columnName => $value) {
+            $columnName  = str_replace("'", "", $columnName);
+            $setArray[$columnName] = '?';
+        }
+        $query = $queryBuilder->update($tablename)->where('id = '.$editId);
+
+        $tableColumns = array();
+        $i = 0;
+        foreach ($tblClm as $column => $property) {
+            if($i != 0){
+                $tableColumns[$column] = array();
+                $tableColumns[$column]['size'] = $tblClm[$column]->getLength();
+                $tableColumns[$column]['notnull'] = $tblClm[$column]->getNotnull();
+                $tableColumns[$column]['type'] = (string) $tblClm[$column]->getType();
+                $query->set($column,'?');
+            }
+            $i++;
+        }
+
+        $i = 0;
+        foreach ($table_data['row'] as $columnName => $value) {
+            if($i != 0){
+                $columnName  = str_replace("'", "", $columnName);
+                if($tableColumns[$columnName]['type'] == 'Integer' )
+                    $query->setParameter($i, (int)$value);
+                else
+                    $query->setParameter($i, $value);
+            }
+            $i++;
+        }
+        //$query->setParameter($i,(int)$editId);
+
+        try {
+            $result = $query->execute();
+            $this->addFlash('success','One row has been inserted successfully !!!');
+        } catch (Exception $e) {
+            $this->addFlash('error','This table does not exists in connected database !!!');
+        }
+        return $this->render('dbs/insertTable.html.twig',array(
+                                    "tableColumns"  => $tblClm,
+                                    "tablename" => $tablename
+                                        ));
+
+    }
+
+    /**
+     * @Route("/dbs/deleteRowInTable/{tablename}/{id}", name="dbs_delete_row_in_table")
+     */
+    public function deleteRowInTableAction($tablename,$id){
+        $conn = $this->get('database_connection');
+        $sm = $conn->getSchemaManager();
+        $tables = $sm->listTableNames();
+
+        $tblClm = $sm->listTableColumns($tablename);
+        if(!$sm->tablesExist(array($tablename))){
+            $this->addFlash('error','This table does not exists in connected database !!!');
+            return $this->render('dbs/index.html.twig',array("tables"=>$tables));
+        }
+
+
+        $queryBuilder = $conn->createQueryBuilder();
+        $query = $queryBuilder->delete($tablename)->where('id = :id');
+        $query->setParameter(':id', (int)$id);
+
+        try {
+            $result = $query->execute();
+            $this->addFlash('success','One row has been deleted successfully !!!');
+        } catch (Exception $e) {
+            $this->addFlash('error','This table does not have row with given id. !!!');
+        }
+
+        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder->select('*')->from($tablename);
+
+        $tableData = array();
+        try {
+            $result = $queryBuilder->execute()->fetchAll();
+            $tableData = $result;
+        } catch (Exception $e) {
+            $this->addFlash('error','This table does not exists in connected database !!!');
+        }
+
+        return $this->render('dbs/browseTable.html.twig',array(
+                                    "tableColumns"  => $tblClm,
+                                    "tableData" => $tableData,
+                                    "tablename" => $tablename
                                         ));
     }
 
 
 
+     /**
+     * @Route("/dbs/insertTable/{tablename}", name="dbs_insert_table")
+     */
+    public function insertTableAction($tablename){
+        $conn = $this->get('database_connection');
+        $sm = $conn->getSchemaManager();
+        $tables = $sm->listTableNames();
+        if(!$sm->tablesExist(array($tablename))){
+            $this->addFlash('error','This table does not exists in connected database !!!');
+            return $this->render('dbs/index.html.twig',array("tables"=>$tables));
+        }
+
+        $tables = $sm->listTableNames();
+
+        $tblClm = $sm->listTableColumns($tablename);
+        $tableColumns = array();
+        foreach ($tblClm as $column => $property) {
+            $tableColumns[$column] = array();
+            $tableColumns[$column]['size'] = $tblClm[$column]->getLength();
+            $tableColumns[$column]['notnull'] = $tblClm[$column]->getNotnull();
+            $tableColumns[$column]['type'] = (string) $tblClm[$column]->getType();
+        }
+        return $this->render('dbs/insertTable.html.twig',array(
+                                    "tableColumns"  => $tblClm,
+                                    "tablename" => $tablename
+                                        ));
+    }
 
 
 
+     /**
+     * @Route("/dbs/newInsertTable", name="dbs_insert_into_table")
+     * @Method("POST")
+     */
+    public function newInsertTableAction(Request $request){
+        $table_data = $request->request->all();
+        $tablename = $table_data['tablename'];
+        $conn = $this->get('database_connection');
+        $queryBuilder = $conn->createQueryBuilder();
+        $sm = $conn->getSchemaManager();
+        $tables = $sm->listTableNames();
+        if(!$sm->tablesExist(array($tablename))){
+            $this->addFlash('error','This table does not exists in connected database !!!');
+            return $this->render('dbs/index.html.twig',array("tables"=>$tables));
+        }
+
+        $tblClm = $sm->listTableColumns($tablename);
+        $tableColumns = array();
+        foreach ($tblClm as $column => $property) {
+            $tableColumns[$column] = array();
+            $tableColumns[$column]['size'] = $tblClm[$column]->getLength();
+            $tableColumns[$column]['notnull'] = $tblClm[$column]->getNotnull();
+            $tableColumns[$column]['type'] = (string) $tblClm[$column]->getType();
+        }
+
+        $setArray = array();
+        foreach ($table_data['row'] as $columnName => $value) {
+            $columnName  = str_replace("'", "", $columnName);
+            $setArray[$columnName] = '?';
+        }
+        $query = $queryBuilder->insert($tablename)->values($setArray);
+
+        $i = 0;
+        foreach ($table_data['row'] as $columnName => $value) {
+            $columnName  = str_replace("'", "", $columnName);
+            if($tableColumns[$columnName]['type'] == 'Integer' )
+                $query->setParameter($i, (int)$value);
+            else
+                $query->setParameter($i, $value);
+            $i++;
+        }
+        try {
+            $result = $query->execute();
+            $this->addFlash('success','One row has been inserted successfully !!!');
+        } catch (Exception $e) {
+            $this->addFlash('error','This table does not exists in connected database !!!');
+        }
+        return $this->render('dbs/insertTable.html.twig',array(
+                                    "tableColumns"  => $tblClm,
+                                    "tablename" => $tablename
+                                        ));
+    }
 
 
 

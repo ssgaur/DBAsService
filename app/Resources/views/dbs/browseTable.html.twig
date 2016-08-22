@@ -37,88 +37,23 @@
                               <tr> 
                                 <th>Action</th> 
                                 {% for key,value in tableColumns %}
-                                    <th>{{ key }}</th> 
+                                    <th>{{ key }} </th> 
                                 {% endfor %}
                               </tr> 
                             </thead> 
                             <tbody> 
-                              <tr> 
-                                <td>
-                                  <a href="#" class="btn btn-primary btn-xs">Edit</a>
-                                  <a href="#" class="btn btn-danger btn-xs">Delete</a>
-                                </td> 
-                                <td> 1 </td> 
-                                <td>Name</td> 
-                                <td>Email</td> 
-                                <td>Passowrd</td> 
-                                <td>some</td> 
-                              </tr> 
-                              <tr> 
-                                <td>
-                                  <a href="#" class="btn btn-primary btn-xs">Edit</a>
-                                  <a href="#" class="btn btn-danger btn-xs">Delete</a>
-                                </td> 
-                                <td> 1 </td> 
-                                <td>Name</td> 
-                                <td>Email</td> 
-                                <td>Passowrd</td> 
-                                <td>some</td> 
-                              </tr> 
-                              <tr> 
-                                <td>
-                                  <a href="#" class="btn btn-primary btn-xs">Edit</a>
-                                  <a href="#" class="btn btn-danger btn-xs">Delete</a>
-                                </td> 
-                                <td> 1 </td> 
-                                <td>Name</td> 
-                                <td>Email</td> 
-                                <td>Passowrd</td> 
-                                <td>some</td> 
-                              </tr> 
-                              <tr> 
-                                <td>
-                                  <a href="#" class="btn btn-primary btn-xs">Edit</a>
-                                  <a href="#" class="btn btn-danger btn-xs">Delete</a>
-                                </td> 
-                                <td> 1 </td> 
-                                <td>Name</td> 
-                                <td>Email</td> 
-                                <td>Passowrd</td> 
-                                <td>some</td> 
-                              </tr> 
-                              <tr> 
-                                <td>
-                                  <a href="#" class="btn btn-primary btn-xs">Edit</a>
-                                  <a href="#" class="btn btn-danger btn-xs">Delete</a>
-                                </td> 
-                                <td> 1 </td> 
-                                <td>Name</td> 
-                                <td>Email</td> 
-                                <td>Passowrd</td> 
-                                <td>some</td> 
-                              </tr> 
-                              <tr> 
-                                <td>
-                                  <a href="#" class="btn btn-primary btn-xs">Edit</a>
-                                  <a href="#" class="btn btn-danger btn-xs">Delete</a>
-                                </td> 
-                                <td> 1 </td> 
-                                <td>Name</td> 
-                                <td>Email</td> 
-                                <td>Passowrd</td> 
-                                <td>some</td> 
-                              </tr> 
-                              <tr> 
-                                <td>
-                                  <a href="#" class="btn btn-primary btn-xs">Edit</a>
-                                  <a href="#" class="btn btn-danger btn-xs">Delete</a>
-                                </td> 
-                                <td> 1 </td> 
-                                <td>Name</td> 
-                                <td>Email</td> 
-                                <td>Passowrd</td> 
-                                <td>some</td> 
-                              </tr> 
+                        {% for row in tableData  %}
+                          <tr> 
+                            <td>
+                              <a href="/dbs/editRowInTable/{{tablename}}/{{row.id}}" class="btn btn-primary btn-xs">Edit</a>
+                              <a href="/dbs/deleteRowInTable/{{tablename}}/{{row.id}}" class="btn btn-danger btn-xs">Delete</a>
+                            </td> 
+                            {% for key,value in row %}
+                                <td>{{value}}</td> 
+                            {% endfor %}
+                          </tr> 
+                        {% endfor %}
+                              
                             </tbody> 
                         </table>
                         <div class="sort-num-box-bottom">

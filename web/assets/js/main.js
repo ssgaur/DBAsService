@@ -9,7 +9,7 @@ $(document).ready(function(){
                                         '<option elected="selected" value="varchar">varchar</option>'+
                                         '<option value="int">integer</option>'+
                                         '<option value="text">text</option>'+
-                                        '<option value="datetime">datetime</option>'+
+                                        '<option value="timestamp">datetime</option>'+
                                       '</select>'+
                                 '</td>'+ 
                                 '<td><input type="text"  name="field_length['+newTableColumnCount+']"></td>'+ 
