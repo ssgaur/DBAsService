@@ -2,11 +2,6 @@
 {% block body %}
           <div class="row top-buffer  border-1x">
                         <table class="table table-striped"> 
-                            <div class="sort-num-box">
-                                <input type="text" placeholder="new table name">
-                                <input type="text" placeholder="numbe of column">
-                                <a href="/dbs/newTable" class="btn btn-primary btn-sm">Create New Table </a>
-                            </div>
                             <thead> 
                               <tr> 
                                 <th>#</th> 
@@ -21,13 +16,16 @@
                                     <td>{{ table }}</td> 
                                     <td>
                                       <a href="/dbs/browseTable/{{table}}" class="btn btn-success btn-xs">Browse</a>
-                                      <a href="#" class="btn btn-primary btn-xs">Structure</a>
                                       <a href="/dbs/insertTable/{{table}}" class="btn btn-primary btn-xs">Insert</a>
                                       <a href="/dbs/deleteTable/{{table}}" class="btn btn-danger btn-xs">Drop</a>
                                     </td> 
                                   </tr> 
                               {% endfor %}
-
+                                  <tr>
+                                      <td></td>
+                                      <td></td>
+                                      <td><a href="/dbs/newTable" class="btn btn-primary btn-sm">Create New Table </a></td>
+                                  </tr> 
                             </tbody> 
                         </table>
                     </div>
