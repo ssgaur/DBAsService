@@ -190,12 +190,13 @@ class DbsController extends Controller{
             if(isset($table_data['field_name'][$i]) && !empty($table_data['field_name'][$i])){
                 $tempString .= $table_data['field_name'][$i].":".$table_data['field_type'][$i];
                 if(isset($table_data['field_length'][$i]) && !empty($table_data['field_length'][$i])){
-                        if($table_data['field_type'][$i] == 'varchar' || $table_data['field_type'][$i] == 'text'){
-                            $tempString .= '('.$table_data['field_length'][$i].')';
-                            $tempString .="(".$table_data['field_length'][$i].") ";
-                        }
+                    if($table_data['field_type'][$i] == 'varchar' || 
+                        $table_data['field_type'][$i] == 'int'){
+                        //$tempString .= '('.$table_data['field_length'][$i].')';
                     }
+                }
             }
+            $tempString .=" ";
         }
         return $tempString;
     }
@@ -360,7 +361,7 @@ class DbsController extends Controller{
             $this->addFlash('success','One row has been Updated successfully !!!');
             return $this->redirectToRoute('dbs_browse_table', array('tablename' => $tablename), 301);
         } catch (\Exception $e) {
-            $this->addFlash('error','This table does not exists in connected database !!!');
+            $this->addFlash('error','There was an error in updating. !!!');
         }
         return $this->render('dbs/insertTable.html.twig',array(
                                     "tableColumns"  => $tblClm,
@@ -450,7 +451,7 @@ class DbsController extends Controller{
             $result = $query->execute();
             $this->addFlash('success','One row has been inserted successfully !!!');
         } catch (\Exception $e) {
-            $this->addFlash('error','This table does not exists in connected database !!!');
+            $this->addFlash('error','There was an error in creating !!!');
         }
         return $this->render('dbs/insertTable.html.twig',array(
                                     "tableColumns"  => $tblClm,

@@ -14,7 +14,9 @@ class SecurityController extends Controller{
      * @Route("/login", name="login")
      */
     public function loginAction(Request $request){
-
+        if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('homepage');
+        }
         try{
             $authenticationUtils = $this->get('security.authentication_utils');
 
@@ -58,7 +60,9 @@ class SecurityController extends Controller{
      * @Route("/register", name="register")
      */
     public function registerAction(Request $request){
-        try{
+        if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('homepage');
+        }
             $user = new User();
             $form = $this->createForm(UserType::class, $user);
 
@@ -70,43 +74,19 @@ class SecurityController extends Controller{
                     ->encodePassword($user, $user->getPlainPassword());
                 $user->setPassword($password);
                 $user->setUserRole('ROLE_USER');
-
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($user);
-                $em->flush();
-
-                $this->addFlash(
-                'notice',
-                'Registration successfull!'
-                );
-                return $this->redirectToRoute('login');
+                try{
+                    $em->flush();
+                    $this->addFlash('notice','Registration successfull!');
+                }
+                catch(\Exception $e){
+                    $this->addFlash('notice','Error: Given username or email already taken!');
+                    return $this->render('default/register.html.twig',array('form' => $form->createView())); 
+                }
+                return $this->render('default/register.html.twig',array('form' => $form->createView())); 
             }
+            return $this->render('default/register.html.twig',array('form' => $form->createView())); 
 
-            return $this->render(
-                'default/register.html.twig',
-                array('form' => $form->createView())
-            );    
-        }
-
-        catch(UniqueConstraintViolationException $e){
-            $this->addFlash(
-                'notice',
-                'Error: Cannot register!'
-            );
-            return $this->redirectToRoute('login');
-        }
-        catch(\Exception $e){
-            #$logger = $this->get('logger');
-            #$logger->error($e->getMessage());
-            $this->addFlash(
-                'notice',
-                'Error: Cannot register!'
-            );
-            return $this->redirectToRoute('login');
-        }
-        
-    }    
-
-    
-
+    }
 }

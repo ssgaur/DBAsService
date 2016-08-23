@@ -21,8 +21,11 @@ security:
             form_login:
                 login_path: login
                 check_path: login
+                always_use_default_target_path: true
+                default_target_path:            homepage
             provider: our_db_provider
             logout:
                 path: /logout
     access_control:
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/dbs/*, roles: ROLE_DEV}

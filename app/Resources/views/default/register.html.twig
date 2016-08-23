@@ -1,0 +1,10 @@
+{% extends 'userBase.html.twig' %}
+{% block body %}
+<h2 class="page-header">Register</h2>
+{{form_start(form)}}
+{{form_widget(form)}}
+
+<button type="submit" class="btn btn-success">Register</button>
+<a href="/" class="btn btn-danger">Cancel</a>   
+{{ form_end(form) }}
+{% endblock %}

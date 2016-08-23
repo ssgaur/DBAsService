@@ -33,6 +33,13 @@
                   <li><a href="#about">About</a></li>
                   <li><a href="#contact">Contact</a></li> #}
                 </ul>
+                <ul class = "nav pull-right">
+                  {% if app.user %}
+                      <li><a href="/logout">Logout</a></li>
+                  {% else %}
+                      <li><a href="/login">Login</a></li>
+                  {% endif %}
+                </ul>
               </div><!--/.nav-collapse -->
             </div>
         </nav>
