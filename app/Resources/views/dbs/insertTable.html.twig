@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+                    {# <div class="row top-buffer border-1x">
+                        <ul class="tabs">
+                          <li  rel="tab1">Tables</li>
+                          <li  rel="tab1">Browse</li>
+                          <li rel="tab2">Structure</li>
+                          <li rel="tab3">SQL</li>
+                          <li rel="tab4">Search</li>
+                          <li rel="tab4">Insert</li>
+                          <!-- <li class="active" rel="tab4">Insert</li> -->
+                        </ul>
+                    </div> #}
+                    <div class="row top-buffer  border-1x">
+                        <form method="post" action="{{ path('dbs_insert_into_table') }}" name="new_item_in_table_form">
+
+                        <table class="table table-striped"> 
+                            <thead> 
+                              <tr> 
+                                <th>Column</th> 
+                                <th>Type(Size)</th> 
+                                <th>Value</th> 
+                              </tr> 
+                            </thead> 
+                            <tfoot>
+                              <tr> 
+                                <th></th> 
+                                <th></th> 
+                                <th> 
+                                  <input type="submit" value="Create Now" class="btn btn-success btn-xs">
+                                </th> 
+                              </tr> 
+                            </tfoot>
+                            <tbody> 
+                              {% for column,property in tableColumns %}
+                                <tr>
+                                  <td>{{ column }}</td> 
+                                  <td>
+                                      {{ property.type }}
+                                      {% if property.length | length > 0  %}
+                                        ({{ property.length }} )
+                                      {% endif %}
+                                  </td> 
+                                  <td>
+                                      {% if property.type == "Integer" %}
+                                        <input type="text" placeholder="" name="row['{{column}}']">
+                                      {% elseif property.type == "String" %}
+                                        <textarea name="row['{{column}}']"></textarea>
+                                      {% elseif property.type == "DateTime" %}
+                                         <input type="date" min="2000-01-02" name="row['{{column}}']"><br>
+                                      {% endif %}
+                                  </td>
+                                </tr>
+                              {% endfor %}
+                              
+                            </tbody> 
+                        </table>
+                        <input type="hidden" name="tablename" value="{{tablename}}">
+                      </form>
+                    </div>
+{% endblock %}

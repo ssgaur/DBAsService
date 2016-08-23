@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+                  {# <div class="row top-buffer border-1x">
+                        <ul class="tabs">
+                          <li  rel="tab1">Browse</li>
+                          <li rel="tab2">Structure</li>
+                          <li rel="tab3">SQL</li>
+                          <li rel="tab4">Search</li>
+                          <li rel="tab4">Insert</li>
+                          <!-- <li class="active" rel="tab4">Insert</li> -->
+                        </ul>
+                    </div> #}
+                    <div class="row top-buffer  border-1x">
+                        <table class="table table-striped"> 
+                            <div class="sort-num-box">
+                                <div class="sort-box"> Sort By:   
+                                      <select name="carlist" form="carform">
+                                        {% for key,value in tableColumns %}
+                                            <option value="volvo">{{ key }}</option>
+                                        {% endfor %}
+                                      </select> 
+                                      <input type="submit" value="Go" class="btn btn-primary btn-xs">
+                                </div>
+
+                                <div class="num-row-box"> No of Rows:  
+                                      <select name="carlist" form="carform">
+                                        <option value="volvo">5</option>
+                                        <option value="volvo">10</option>
+                                        <option value="volvo">25</option>
+                                        <option value="volvo">50</option>
+                                        <option value="volvo">100</option>
+                                      </select>
+                                      <input type="submit" value="Go" class="btn btn-primary btn-xs">
+                                </div>
+                            </div>
+                            <thead> 
+                              <tr> 
+                                <th>Action</th> 
+                                {% for key,value in tableColumns %}
+                                    <th>{{ key }} </th> 
+                                {% endfor %}
+                              </tr> 
+                            </thead> 
+                            <tbody> 
+                        {% for row in tableData  %}
+                          <tr> 
+                            <td>
+                              <a href="/dbs/editRowInTable/{{tablename}}/{{row.id}}" class="btn btn-primary btn-xs">Edit</a>
+                              <a href="/dbs/deleteRowInTable/{{tablename}}/{{row.id}}" class="btn btn-danger btn-xs">Delete</a>
+                            </td> 
+                            {% for key,value in row %}
+                                <td>{{value}}</td> 
+                            {% endfor %}
+                          </tr> 
+                        {% endfor %}
+                              
+                            </tbody> 
+                        </table>
+                        <div class="sort-num-box-bottom">
+                                <div class="sort-box"> Sort By:   
+                                      <select name="carlist" form="carform">
+                                        {% for key,value in tableColumns %}
+                                            <option value="volvo">{{ key }}</option>
+                                        {% endfor %}
+                                      </select> 
+                                      <input type="submit" value="Go" class="btn btn-primary btn-xs">
+                                </div>
+
+                                <div class="num-row-box"> No of Rows:  
+                                      <select name="carlist" form="carform">
+                                        <option value="volvo">5</option>
+                                        <option value="volvo">10</option>
+                                        <option value="volvo">25</option>
+                                        <option value="volvo">50</option>
+                                        <option value="volvo">100</option>
+                                      </select>
+                                      <input type="submit" value="Go" class="btn btn-primary btn-xs">
+                                </div>
+                        </div>
+                    </div>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{# app/Resources/TwigBundle/views/Exception/error404.html.twig #}
+{% extends 'userBase.html.twig' %}
+
+{% block body %}
+    <h1>Access Denied</h1>
+
+    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+        {# ... #}
+    {% endif %}
+
+    <p>
+       You do not have access to this location. Please contact admin or <a href="{{ path('homepage') }}">return to the homepage</a>.
+    </p>
+{% endblock %}
