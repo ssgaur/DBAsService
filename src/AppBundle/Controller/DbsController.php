@@ -118,18 +118,20 @@ class DbsController extends Controller{
                                     "tablename" =>$tablename
                                         ));
     }
+    
     /**
      * @Route("/dbs/edittable/{tablename}", name="dbs_edit_table_structure")
      */
     public function editTableAction($tablename){
-        return new jsonResponse(array());
         if(!$this->tableExistInCurrentDatabase($tablename)){
             $this->addFlash('error','This table does not exists in connected database !!!');
             return $this->redirectToRoute('dbs_index');
         }
         $tableColumns = $this->getTableColumnsAsArray($tablename);
         array_shift($tableColumns);
-        //print_r($tableColumns);
+        
+        return new jsonResponse(array());
+        
         return $this->render('dbs/altertable.html.twig',array(
                                                         'tablename'=>$tablename,
                                                         'tableColumns' =>$tableColumns,
@@ -138,9 +140,9 @@ class DbsController extends Controller{
     }
 
     /**
-     * @Route("/dbs/altertable", name="dbs_alter_table")
-     * @Method("POST")
-     */
+    * @Route("/dbs/altertable", name="dbs_alter_table")
+    * @Method("POST")
+    */
     public function alterTableAction(Request $request){
         $table_data = $request->request->all();
         if(empty($table_data['new_table_name'])){
