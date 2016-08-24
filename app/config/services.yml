@@ -1,9 +1,14 @@
-# Learn more about services, parameters and containers at
-# http://symfony.com/doc/current/book/service_container.html
+# # Learn more about services, parameters and containers at
+# # http://symfony.com/doc/current/book/service_container.html
 # parameters:
-# #    parameter_name: value
+#     my_service_connection: default
 
+# # services:
+# #     creator_service:
+# #         class: AppBundle\Controller\creatorController
+# #         arguments: []
 # services:
-#     creator_service:
-#         class: AppBundle\Controller\creatorController
-#         arguments: []
+# toolbox_service: 
+#     class:AppBundle\Toolbox\StringToolbox
+#     arguments:[@doctrine.dbal.%my_service_connection%_connection]
+

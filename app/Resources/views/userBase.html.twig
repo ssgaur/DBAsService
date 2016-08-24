@@ -38,9 +38,9 @@
             {% if app.user %}
                   {% if is_granted('ROLE_DEV') == true  and app.user %}
                       <li><a href="{{path('dbs_index')}}">ORM ACCESS</a></li>
-                      <li><a href="#">Create Todo</a></li>
                   {% else %}
-                      <li><a href="#">Create Todo</a></li>
+                      <li><a href="/todo/create">Create Todo</a></li>
+                      <li><a href="/todo/list">List Todos</a></li>
                   {% endif %}
             {% else %}
                 <li><a href="/register">Register</a></li>
@@ -61,7 +61,7 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 {% for flash_message in app.session.flashbag.get('notice') %}
                     <div class="alert alert-success">{{flash_message}}</div>
                 {% endfor %}

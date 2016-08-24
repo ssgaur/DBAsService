@@ -1,0 +1,15 @@
+{% extends 'userBase.html.twig' %}
+
+{% block body %}
+	<a href="/todo/list" class="btn btn-default"> Back to ToDos</a> 
+	<hr>
+	<h2 class="page-header"> {{ todo.name }} </h2>
+	<ul class="list-group">
+		<li class="list-group-item"> <strong> Category: </strong> {{ todo.category }} </li>
+		<li class="list-group-item"> <strong>  Priority: </strong>   {{ todo.priority }} </li>
+		<li class="list-group-item"> <strong>  Detail: </strong>   {{ todo.description }} </li>
+		<li class="list-group-item"> <strong>  Due: </strong>   {{ todo.dueDate | date('F j, y, g:i a')  }} </li>
+		<li></li>
+	</ul>
+
+{% endblock %}

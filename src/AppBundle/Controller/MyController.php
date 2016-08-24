@@ -23,10 +23,10 @@ class MyController extends Controller{
      */
     public function generateEntityAction(){
         $format = "annotation"; //it can also be yml/php/xml
-        $fields = "title:string(255) body:text";
+        $fields = "title:string(255) body:text category:varchar created_at:datetime";
         $withRepository = false; //true/false
 
-        $entity = Validators::validateEntityName("MyBundle:EntityName");
+        $entity = Validators::validateEntityName("AppBundle:shailendta");
         list($bundle, $entity) = $this->parseShortcutNotation($entity);
         $format = Validators::validateFormat($format);
         $fields = $this->parseFields($fields);
