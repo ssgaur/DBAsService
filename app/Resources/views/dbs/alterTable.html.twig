@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="row top-buffer  border-1x">
+              <form method="post" action="{{ path('dbs_alter_table') }}" name="new_table_form">
+                        <table class="table table-striped" id="newtable-create"> 
+                            <div class="sort-num-box">
+                                <strong>Table Name (Unique):</strong> <input type="text" name="new_table_name" class="" placeholder="New table name" value="{{tablename}}">
+                            </div>
+                            <thead> 
+                              <tr> 
+                                <th>Name</th> 
+                                <th>Type</th> 
+                                <th>Length</th> 
+                                <th>Not Null </th> 
+                                <th></th> 
+                              </tr> 
+                            </thead> 
+                            <tbody> 
+                              <input type="hidden" id="columnCount" name="columnCount" value="{{columnCount}}">
+                              <input type="hidden" id="tablename" name="tablename" value="{{tablename}}">
+
+                        {% for columnname,property in tableColumns %}
+                              <tr id="fieldId_{{loop.index0}}"> 
+                                <td> <input type="text" name="field_name[{{loop.index0}}]" value="{{columnname}}"> </td> 
+                                <td>
+                                    <select  name="field_type[{{loop.index0}}]">
+                                        <option value="varchar" {% if property.type == 'String' %} selected="selected"  {% endif %}>varchar</option>
+                                        <option value="int" {% if property.type == 'Integer' %} selected="selected"  {% endif %}>integer</option>
+                                        <option value="timestamp" {% if property.type == 'DateTime' %} selected="selected"  {% endif %}>datetime</option>
+                                      </select>
+                                </td> 
+                                <td><input type="text"  name="field_length[{{loop.index0}}]" value="{{property.size}}"></td> 
+                                <td><input type="checkbox" name="field_null[{{loop.index0}}]" {% if property.notnull == 1 %} checked {% endif %} ></td> 
+                                <td><a href="#"  id="{{loop.index0}}" class="btn btn-primary btn-xs deleteRow">X</a></td> 
+                              </tr> 
+                        {% endfor %}
+                            </tbody> 
+                        </table>
+                        <div class="sort-num-box-bottom">
+                                <div class="sort-box">   </div>
+                                <div class="num-row-box">
+                                      <input type="submit" value="Create Now" class="btn btn-primary btn-xs">
+                                      OR
+                                      <a href="#"  id="new-table-column" class="btn btn-primary btn-xs"> Add One More Column </a>
+                                </div>
+                        </div>
+                    </div>
+              </form>
+{% endblock %}

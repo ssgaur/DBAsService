@@ -29,3 +29,4 @@ security:
     access_control:
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/dbs/*, roles: ROLE_DEV}
+        - { path: ^/todo/*, roles: [ROLE_DEV, ROLE_USER]}

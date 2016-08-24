@@ -1,7 +1,9 @@
 $(document).ready(function(){
-	var newTableColumnCount = 0;
+    var newTableColumnCount = parseInt($('#columnCount').val());
+	//var newTableColumnCount = 0;
+
     $('#new-table-column').click(function(){
-		newTableColumnCount += 1;
+		
 		var newColumn = 	'<tr id="fieldId_'+newTableColumnCount+'">'+ 
                                 '<td> <input type="text" name="field_name['+newTableColumnCount+']"> </td>'+ 
                                 '<td>'+
@@ -14,13 +16,19 @@ $(document).ready(function(){
                                 '</td>'+ 
                                 '<td><input type="text"  name="field_length['+newTableColumnCount+']"></td>'+ 
                                 '<td><input type="checkbox"  name="field_null['+newTableColumnCount+']" ></td>'+ 
-                                '<td><a href="#"  id="delete-extra-row" class="btn btn-primary btn-xs">X</a></td> '+
+                                '<td><a href="#"  id="'+newTableColumnCount+'" class="btn btn-primary btn-xs deleteRow">X</a></td> '+
                               '</tr>'; 
 		$('#newtable-create tbody').append(newColumn);
+        newTableColumnCount += 1;
+        $('#columnCount').val(newTableColumnCount);
 	});
 
-    $('#delete-extra-row').click(function(){
-        newTableColumnCount -= 1 ;
-        $('#fieldId_'+newTableColumnCount).remove();
+
+
+    $('body').on('click', 'a.deleteRow', function() {
+        var id = parseInt(this.id);
+        //alert(id);
+        $('#fieldId_'+id).remove();
     });
+
 });

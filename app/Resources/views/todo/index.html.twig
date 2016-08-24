@@ -1,0 +1,33 @@
+{% extends 'userBase.html.twig' %}
+
+{% block body %}
+
+	<table class="table table-striped"> 
+		<h2 class="page-header"> Complete ToDo List </h2>
+		<thead> 
+			<tr> 
+				<th>#</th> 
+				<th>Title</th> 
+				<th>Priority</th> 
+				<th>Due Date</th> 
+				<th>Action</th> 
+			</tr> 
+		</thead> 
+		<tbody> 
+			{% for todo in todos %}
+			<tr> 
+				<th scope="row"> {{ todo.id }} </th> 
+				<td>{{ todo.name }}</td> 
+				<td>{{ todo.priority }}</td> 
+				<td>{{ todo.dueDate | date('F j, y, g:i a') }}</td> 
+				<td>
+					<a href="/todo/details/{{todo.id}}" class="btn btn-success">View</a>
+					<a href="/todo/edit/{{todo.id}}" class="btn btn-primary">Edit</a>
+					<a href="/todo/delete/{{todo.id}}" class="btn btn-danger">Delete</a>
+				</td> 
+			</tr> 
+			{% endfor %}
+		</tbody> 
+	</table>
+
+{% endblock %}

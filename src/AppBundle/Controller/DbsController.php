@@ -12,9 +12,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use AppBundle\Utility\Utility;
 
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 class DbsController extends Controller{
     protected $connection;
+
 
     /**
      * @Route("/dbs/getTablesInfo", name="dbs_get_table_info")
@@ -66,14 +69,30 @@ class DbsController extends Controller{
         if(!$tableExist){
             $this->addFlash('error','This table does not exists in connected database !!!');
         }
+        else if($tablename == 'users' || $tablename == 'todo'){
+
+        }
         else{
             try {
                 $this->getSchemaManager()->dropTable($tablename);
                 $this->addFlash('success','Table named "'.$tablename.'"has been dropped successfully !!!');
+
+                $fs = new Filesystem();
+                try {
+                    $fs->remove('../src/AppBundle/Entity/'.$tablename.'.php');
+                    $fs->remove('../src/AppBundle/Repository/'.$tablename.'Repository'.'.php');
+                   // $fs->remove('../src/AppBundle/Entity/lola.php');
+               
+                } catch (IOExceptionInterface $e) {
+                    echo "An error occurred while creating your directory at ".$e->getPath();
+                }
+
             } catch (\Doctrine\ORM\ORMException $e) {
                 $this->addFlash('error','There was some error in dropping table. Please try again !!!');
             }
         }
+        
+
         return $this->redirectToRoute('dbs_index');
     }
 
@@ -142,10 +161,34 @@ class DbsController extends Controller{
             )
         
     */
-    private function createSQLforCreateTable($tableData){
-        $tablename = $tableData['new_table_name'];
+    private function createSQLforCreateTable($table_data){
+        $tablename = $table_data['new_table_name'];
         $tempString ="CREATE TABLE IF NOT EXISTS ".$tablename." (id serial,";
 
+        $sqlString = '';
+        $properFieldArray = $this->makeProperArrayFromUserInputColumns($table_data);
+        foreach ($properFieldArray as $key => $field) {
+            foreach ($field as $property => $value) {
+                if($property == 'columnName'){
+                    $sqlString .= $value.' ';
+                }
+                if($property == 'columnDatatype'){
+                    $sqlString .= $value;
+                }
+                if($property == 'columnSize'){
+                    if(!empty($value))
+                    $sqlString .= '('.$value.')';
+                }
+                if($property == 'columnNotnull'){
+                    $sqlString .= ' NOT NULL';
+                }
+            }
+            $sqlString .= ',';
+        }
+        $sqlString .= ' PRIMARY KEY(id) )';
+        $tempString .= $sqlString;
+        return $tempString;
+       /*
         //print_r($tableData);
         $tempSqlArray = array();
         foreach ($tableData as $key => $fieldOptions) {
@@ -182,7 +225,7 @@ class DbsController extends Controller{
             $i++;
         }
         $tempString .='PRIMARY KEY(id) )';
-        return $tempString;
+        return $tempString;  */
     }
     private function createStringForEntityGenerator($table_data){
         $tempString = '';
@@ -201,6 +244,41 @@ class DbsController extends Controller{
         return $tempString;
     }
 
+    private function makeProperArrayFromUserInputColumns($table_data){
+        $properArray = array();
+        foreach ($table_data as $property => $fieldValues) {
+            if(is_array($fieldValues)){
+                foreach ($fieldValues as $index => $value) {
+                    if($property == 'field_name'){
+                        if(!empty($value)){
+                            if(!isset($properArray[$index])){
+                                $properArray[$index] = array();
+                            }
+                            $properArray[$index]['columnName'] = $value;
+                        }
+                    }
+                    if($property == 'field_type'){
+                        if(isset($properArray[$index])){
+                            $properArray[$index]['columnDatatype'] = $value;
+                        }
+                    }
+                    if($property == 'field_length'){
+                        if(isset($properArray[$index])){
+                            $properArray[$index]['columnSize'] = $value;
+                        }
+                    }
+                    if($property == 'field_null'){
+                        if(isset($properArray[$index])){
+                            $properArray[$index]['columnNotnull'] = $value;
+                        }
+                    }
+                }
+
+            }
+        }
+        return $properArray;
+    }
+
     /**
      * @Route("/dbs/createNewTable", name="dbs_create_new_table")
      * @Method("POST")
@@ -212,20 +290,15 @@ class DbsController extends Controller{
             return $this->render('dbs/newtable.html.twig');
         }
 
-        $uniqueFields = $this->arrayHasUniqueValues($table_data['field_name']);
-        if(!$uniqueFields){
-            $this->addFlash('error','Each name must be non-empty and unique.');
-            return $this->redirectToRoute('dbs_new_table');
-        }
-
         $tablename = $table_data['new_table_name'];
         $tableExist =  $this->tableExistInCurrentDatabase($tablename);
         if($tableExist){
             $this->addFlash('error','This table already exists in connected database !!!');
             return $this->redirectToRoute('dbs_new_table');
         }
-        $sql = $this->createSQLforCreateTable($table_data);
+        
         try {
+            $sql = $this->createSQLforCreateTable($table_data);
             $stmt = $this->getDatabaseConnection()->prepare($sql);
             $stmt->execute();
             $this->addFlash('success','You table has been created successfully.');
@@ -242,7 +315,83 @@ class DbsController extends Controller{
     
     }
 
+    private function getTableColumnsAsArray($tablename){
+        $tblClm = $this->getSchemaManager()->listTableColumns($tablename);
+        $tableColumns = array();
+        foreach ($tblClm as $column => $property) {
+                $tableColumns[$column] = array();
+                $tableColumns[$column]['size'] = $tblClm[$column]->getLength();
+                $tableColumns[$column]['notnull'] = $tblClm[$column]->getNotnull();
+                $tableColumns[$column]['type'] = (string) $tblClm[$column]->getType();
+        }
+        return $tableColumns;
+    }
 
+    /**
+     * @Route("/dbs/edittable/{tablename}", name="dbs_edit_table_structure")
+     */
+    public function editTableAction($tablename){
+        if(!$this->tableExistInCurrentDatabase($tablename)){
+            $this->addFlash('error','This table does not exists in connected database !!!');
+            return $this->redirectToRoute('dbs_index');
+        }
+        $tableColumns = $this->getTableColumnsAsArray($tablename);
+        array_shift($tableColumns);
+        //print_r($tableColumns);
+        return $this->render('dbs/altertable.html.twig',array(
+                                                        'tablename'=>$tablename,
+                                                        'tableColumns' =>$tableColumns,
+                                                        'columnCount' => count($tableColumns)
+                                                    ));
+    }
+    /**
+     * @Route("/dbs/altertable", name="dbs_alter_table")
+     * @Method("POST")
+     */
+    public function alterTableAction(Request $request){
+        $table_data = $request->request->all();
+        if(empty($table_data['new_table_name'])){
+            $this->addFlash('error','Please provide some table name.');
+            return $this->render('dbs/newtable.html.twig');
+        }
+
+        $tablename = $table_data['new_table_name'];
+        $oldTableName = $table_data['tablename'];
+        // $tableExist =  $this->tableExistInCurrentDatabase($tablename);
+        // if($tableExist){
+        //     $this->addFlash('error','This table already exists in connected database !!!');
+        //     return $this->redirectToRoute('dbs_new_table');
+        // }
+        
+        
+        try {
+            $this->getSchemaManager()->dropTable($tablename);
+            
+            $sql = $this->createSQLforCreateTable($table_data);
+            $stmt = $this->getDatabaseConnection()->prepare($sql);
+            $stmt->execute();
+            $this->addFlash('success','You table has been created successfully.');
+                $fs = new Filesystem();
+                try {
+
+                    $fs->remove('../src/AppBundle/Entity/'.$oldTableName.'.php');
+                    $fs->remove('../src/AppBundle/Repository/'.$oldTableName.'Repository'.'.php');
+                   // $fs->remove('../src/AppBundle/Entity/lola.php');
+               
+                } catch (IOExceptionInterface $e) {
+                    echo "An error occurred while creating your directory at ".$e->getPath();
+                }
+
+            $s = new Utility();
+            $fieldStringForEntityGenerator = $this->createStringForEntityGenerator($table_data);
+            $s->createTABLE($this->get('service_container'), $fieldStringForEntityGenerator , $tablename);
+
+            return $this->redirectToRoute('dbs_index');
+        } catch (\Exception $e) {
+            $this->addFlash('error','Some error in updating table structure.');
+        }
+        return $this->redirectToRoute('dbs_edit_table_structure', array('tablename' => $oldTableName), 301);
+    }
 
     /**
      * @Route("/dbs/browseTable/{tablename}", name="dbs_browse_table")
