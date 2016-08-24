@@ -122,6 +122,7 @@ class DbsController extends Controller{
      * @Route("/dbs/edittable/{tablename}", name="dbs_edit_table_structure")
      */
     public function editTableAction($tablename){
+        return new jsonResponse(array());
         if(!$this->tableExistInCurrentDatabase($tablename)){
             $this->addFlash('error','This table does not exists in connected database !!!');
             return $this->redirectToRoute('dbs_index');
