@@ -29,11 +29,18 @@ class sometabe
     private $col1;
 
     /**
-     * @var timestamp
+     * @var varchar
      *
-     * @ORM\Column(name="col2", type="timestamp")
+     * @ORM\Column(name="col2", type="varchar")
      */
     private $col2;
+
+    /**
+     * @var varchar
+     *
+     * @ORM\Column(name="col3", type="varchar")
+     */
+    private $col3;
 
 
     /**
@@ -73,11 +80,11 @@ class sometabe
     /**
      * Set col2
      *
-     * @param \timestamp $col2
+     * @param \varchar $col2
      *
      * @return sometabe
      */
-    public function setCol2(\timestamp $col2)
+    public function setCol2(\varchar $col2)
     {
         $this->col2 = $col2;
 
@@ -87,11 +94,35 @@ class sometabe
     /**
      * Get col2
      *
-     * @return \timestamp
+     * @return \varchar
      */
     public function getCol2()
     {
         return $this->col2;
+    }
+
+    /**
+     * Set col3
+     *
+     * @param \varchar $col3
+     *
+     * @return sometabe
+     */
+    public function setCol3(\varchar $col3)
+    {
+        $this->col3 = $col3;
+
+        return $this;
+    }
+
+    /**
+     * Get col3
+     *
+     * @return \varchar
+     */
+    public function getCol3()
+    {
+        return $this->col3;
     }
 }
 
