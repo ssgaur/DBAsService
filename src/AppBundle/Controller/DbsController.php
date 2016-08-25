@@ -70,6 +70,10 @@ class DbsController extends Controller{
             return $this->render('dbs/newtable.html.twig');
         }
 
+        $uniqueFields = $this->fieldsHasUniqueName($table_data);
+        if(!$uniqueFields){
+            $this->addFlash('error','Field names must be unique.');
+        }
         
         $tableExist =  $this->tableExistInCurrentDatabase($tablename);
         if($tableExist){
@@ -164,7 +168,7 @@ class DbsController extends Controller{
 
         $uniqueFields = $this->fieldsHasUniqueName($table_data);
         if(!$uniqueFields){
-            $this->addFlash('success','Field name must be unique.');
+            $this->addFlash('error','Field name must be unique.');
         }
 
         $tablename = $table_data['new_table_name'];
