@@ -132,7 +132,11 @@ class DbsController extends Controller{
         echo "hello";
         $this->addFlash('success','fuck this error');
         //return $this->redirectToRoute('dbs_index');
-        return $this->render('dbs/editTableStructure.html.twig');
+        return $this->render('dbs/editTableStructure.html.twig',array(
+                                                        "tablename"=> $tablename,
+                                                        "tableColumns" => $tableColumns,
+                                                        "columnCount" =>  count($tableColumns)
+                                                    ));
     }
 
     /**
