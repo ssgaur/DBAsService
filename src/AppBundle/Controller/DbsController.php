@@ -138,6 +138,10 @@ class DbsController extends Controller{
             $this->addFlash('error','This table does not exists in connected database !!!');
             return $this->redirectToRoute('dbs_index');
         }
+        if($tablename == 'users' || $tablename == 'todo'){
+            $this->addFlash('error','No One can not alter me. I am heart of this application. If I am altered, U will cry');
+            return $this->redirectToRoute('dbs_index');
+        }
         $tableColumns = $this->getTableColumnsAsArray($tablename);
         array_shift($tableColumns);
         return $this->render('dbs/editTableStructure.html.twig',array(
@@ -158,8 +162,19 @@ class DbsController extends Controller{
             return $this->render('dbs/newtable.html.twig');
         }
 
+        $uniqueFields = $this->fieldsHasUniqueName($table_data);
+        if(!$uniqueFields){
+            $this->addFlash('success','Field name must be unique.');
+        }
+
         $tablename = $table_data['new_table_name'];
         $oldTableName = $table_data['tablename'];
+
+        if($tablename == 'users' || $tablename == 'todo' 
+                    || $oldTableName == 'users' || $oldTableName == 'todo'){
+            $this->addFlash('error','No One can not alter me. I am heart of this application. If I am altered, U will cry');
+            return $this->redirectToRoute('dbs_index');
+        }
         try {
             $this->getSchemaManager()->dropTable($tablename);
             
@@ -172,7 +187,6 @@ class DbsController extends Controller{
 
                     $fs->remove('../src/AppBundle/Entity/'.$oldTableName.'.php');
                     $fs->remove('../src/AppBundle/Repository/'.$oldTableName.'Repository'.'.php');
-                   // $fs->remove('../src/AppBundle/Entity/lola.php');
                
                 } catch (IOExceptionInterface $e) {
                     echo "An error occurred while creating your directory at ".$e->getPath();
@@ -185,6 +199,15 @@ class DbsController extends Controller{
             return $this->redirectToRoute('dbs_index');
         } catch (\Exception $e) {
             $this->addFlash('error','Some error in updating table structure.');
+            $tableData = $this->newTableFormErrorPrevData($table_data);
+
+            // AsNewTable  is sending because it will use the edit table tempplate making usabale
+            return $this->render('dbs/editTableStructure.html.twig',array(
+                                                        "tablename"=> $tablename,
+                                                        "tableColumns" => $tableData,
+                                                        "columnCount" =>  count($tableData),
+                                                        "AsNewTable" =>true
+                                                    ));
         }
         return $this->redirectToRoute('dbs_edit_table_structure', array('tablename' => $oldTableName), 301);
     }
@@ -197,8 +220,9 @@ class DbsController extends Controller{
         if(!$tableExist){
             $this->addFlash('error','This table does not exists in connected database !!!');
         }
-        else if($tablename == 'users' || $tablename == 'todo'){
-
+        if($tablename == 'users' || $tablename == 'todo'){
+            $this->addFlash('error','No One can not drop me. I am heart of this application. If I die, U die');
+            return $this->redirectToRoute('dbs_index');
         }
         else{
             try {
@@ -612,9 +636,15 @@ class DbsController extends Controller{
         }
         return $tableColumns;
     }
-    private function arrayHasUniqueValues($array){
-        $arrayLength = count($array);
-        $newUniqueArray = array_unique($array);
+    private function fieldsHasUniqueName($table_data){
+        $fieldArray = $this->makeProperArrayFromUserInputColumns($table_data);
+        $tempArray = array();
+        foreach ($fieldArray as $key => $field) {
+            array_push($tempArray, $field['columnName']);
+        }
+
+        $arrayLength = count($tempArray);
+        $newUniqueArray = array_unique($tempArray);
         $uniqueArrayLength = count($newUniqueArray);
         if($arrayLength == $uniqueArrayLength)
             return true;
