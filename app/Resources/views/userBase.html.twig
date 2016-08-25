@@ -17,7 +17,8 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 
     {% block stylesheets %}{% endblock %}
-        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/style.css') }}" />
   </head>
 
   <body>
@@ -38,6 +39,8 @@
             {% if app.user %}
                   {% if is_granted('ROLE_DEV') == true  and app.user %}
                       <li><a href="{{path('dbs_index')}}">ORM ACCESS</a></li>
+                      <li><a href="/todo/create">Create Todo</a></li>
+                      <li><a href="/todo/list">List Todos</a></li>
                   {% else %}
                       <li><a href="/todo/create">Create Todo</a></li>
                       <li><a href="/todo/list">List Todos</a></li>
@@ -65,11 +68,9 @@
                 {% for flash_message in app.session.flashbag.get('notice') %}
                     <div class="alert alert-success">{{flash_message}}</div>
                 {% endfor %}
-                {% block body %}{% endblock %}
-
             </div>
         </div>
-
+        {% block body %}{% endblock %}
      
     </div><!-- /.container -->
     {% block javascripts %}{% endblock %}

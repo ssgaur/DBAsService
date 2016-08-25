@@ -54,7 +54,7 @@ class TodoController extends Controller{
     			->add('category', TextType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
     			->add('description', TextareaType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
     			->add('priority', ChoiceType::class, array('choices'=>array('Low'=>'Low','High'=>'high', 'Moderate'=>'Moderate'), 'attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
-    			->add('due_date', DateTimeType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
+    			->add('due_date', DateTimeType::class, array('attr' => array('class'=>'','style'=>'margin-bottom:15px')))
     			->add('submit', SubmitType::class, array('label'=>'Create ToDo','attr' => array('class'=>'btn btn-success','style'=>'margin-bottom:15px')))
     			->getForm();
     	$form->handleRequest($request);
@@ -107,7 +107,7 @@ class TodoController extends Controller{
                 ->add('category', TextType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
                 ->add('description', TextareaType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
                 ->add('priority', ChoiceType::class, array('choices'=>array('Low'=>'Low','High'=>'high', 'Moderate'=>'Moderate'), 'attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
-                ->add('due_date', DateTimeType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
+                ->add('due_date', DateTimeType::class, array('attr' => array('class'=>'','style'=>'margin-bottom:15px')))
                 ->add('submit', SubmitType::class, array('label'=>'Update ToDo','attr' => array('class'=>'btn btn-success','style'=>'margin-bottom:15px')))
                 ->getForm();
         $form->handleRequest($request);

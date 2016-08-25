@@ -166,7 +166,7 @@ class DbsController extends Controller{
             $sql = $this->createSQLforCreateTable($table_data);
             $stmt = $this->getDatabaseConnection()->prepare($sql);
             $stmt->execute();
-            $this->addFlash('success','You table has been created successfully.');
+            $this->addFlash('success','You table has been Updated successfully.');
                 $fs = new Filesystem();
                 try {
 
