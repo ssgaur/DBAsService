@@ -63,12 +63,14 @@ class DbsController extends Controller{
      */
     public function createNewTableAction(Request $request){
         $table_data = $request->request->all();
+        $tablename = $table_data['new_table_name'];
+        
         if(empty($table_data['new_table_name'])){
             $this->addFlash('error','Please provide some table name.');
             return $this->render('dbs/newtable.html.twig');
         }
 
-        $tablename = $table_data['new_table_name'];
+        
         $tableExist =  $this->tableExistInCurrentDatabase($tablename);
         if($tableExist){
             $this->addFlash('error','This table already exists in connected database !!!');
@@ -86,8 +88,18 @@ class DbsController extends Controller{
             $s->createTABLE($this->get('service_container'), $fieldStringForEntityGenerator , $tablename);
 
             return $this->redirectToRoute('dbs_index');
-        } catch (\Exception $e) {
+        } 
+        catch (\Exception $e) {
             $this->addFlash('error','Some error in creating table.');
+            $tableData = $this->newTableFormErrorPrevData($table_data);
+
+            // AsNewTable  is sending because it will use the edit table tempplate making usabale
+            return $this->render('dbs/editTableStructure.html.twig',array(
+                                                        "tablename"=> $tablename,
+                                                        "tableColumns" => $tableData,
+                                                        "columnCount" =>  count($tableData),
+                                                        "AsNewTable" =>true
+                                                    ));
         }
         return $this->render('dbs/newtable.html.twig');
     }
@@ -128,7 +140,6 @@ class DbsController extends Controller{
         }
         $tableColumns = $this->getTableColumnsAsArray($tablename);
         array_shift($tableColumns);
-       
         return $this->render('dbs/editTableStructure.html.twig',array(
                                                         "tablename"=> $tablename,
                                                         "tableColumns" => $tableColumns,
@@ -609,6 +620,26 @@ class DbsController extends Controller{
             return true;
         else 
             return false;
+    }
+    private function newTableFormErrorPrevData($table_data){
+        $df=  $this->makeProperArrayFromUserInputColumns($table_data);
+        $fieldDisplayIfFormError = array();
+        foreach ($df as $key => $field) {
+           $fieldDisplayIfFormError[$field['columnName']] = array();
+           $fieldDisplayIfFormError[$field['columnName']]['size'] = '';
+           $fieldDisplayIfFormError[$field['columnName']]['notnull'] = 0;
+           $fieldDisplayIfFormError[$field['columnName']]['type']= '';
+           if(isset($field['columnDatatype'])){
+                $fieldDisplayIfFormError[$field['columnName']]['type'] = $field['columnDatatype'];
+           }
+           if(isset($field['columnSize'])){
+                $fieldDisplayIfFormError[$field['columnName']]['size'] = $field['columnSize'];
+           }
+           if(isset($field['columnNotnull'])){
+                $fieldDisplayIfFormError[$field['columnName']]['notnull'] = 1;
+           }
+        }
+        return $fieldDisplayIfFormError;
     }
 
 }
