@@ -178,9 +178,9 @@ class DbsController extends Controller{
                     echo "An error occurred while creating your directory at ".$e->getPath();
                 }
 
-            $s = new Utility();
-            $fieldStringForEntityGenerator = $this->createStringForEntityGenerator($table_data);
-            $s->createTABLE($this->get('service_container'), $fieldStringForEntityGenerator , $tablename);
+            // $s = new Utility();
+            // $fieldStringForEntityGenerator = $this->createStringForEntityGenerator($table_data);
+            // $s->createTABLE($this->get('service_container'), $fieldStringForEntityGenerator , $tablename);
 
             return $this->redirectToRoute('dbs_index');
         } catch (\Exception $e) {
