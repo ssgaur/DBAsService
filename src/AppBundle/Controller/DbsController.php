@@ -130,7 +130,9 @@ class DbsController extends Controller{
         array_shift($tableColumns);
         print_r($tableColumns);
         echo "hello";
-        return $this->render('dbs/altertable.html.twig');
+        $this->addFlash('success','fuck this error');
+        return $this->redirectToRoute('dbs_index');
+        //return $this->render('dbs/altertable.html.twig');
     }
 
     /**
