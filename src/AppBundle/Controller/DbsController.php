@@ -73,6 +73,14 @@ class DbsController extends Controller{
         $uniqueFields = $this->fieldsHasUniqueName($table_data);
         if(!$uniqueFields){
             $this->addFlash('error','Field names must be unique.');
+            $tableData = $this->newTableFormErrorPrevData($table_data);
+            // AsNewTable  is sending because it will use the edit table tempplate making usabale
+            return $this->render('dbs/editTableStructure.html.twig',array(
+                                                        "tablename"=> $tablename,
+                                                        "tableColumns" => $tableData,
+                                                        "columnCount" =>  count($tableData),
+                                                        "AsNewTable" =>true
+                                                    ));
         }
         
         $tableExist =  $this->tableExistInCurrentDatabase($tablename);
