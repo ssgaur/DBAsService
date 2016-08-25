@@ -83,9 +83,9 @@ class DbsController extends Controller{
             $stmt->execute();
             $this->addFlash('success','You table has been created successfully.');
 
-            $s = new Utility();
-            $fieldStringForEntityGenerator = $this->createStringForEntityGenerator($table_data);
-            $s->createTABLE($this->get('service_container'), $fieldStringForEntityGenerator , $tablename);
+            // $s = new Utility();
+            // $fieldStringForEntityGenerator = $this->createStringForEntityGenerator($table_data);
+            // $s->createTABLE($this->get('service_container'), $fieldStringForEntityGenerator , $tablename);
 
             return $this->redirectToRoute('dbs_index');
         } 
