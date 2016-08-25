@@ -123,7 +123,7 @@ class DbsController extends Controller{
      */
     public function editTableAction($tablename){
         print_r($tableColumns);
-        
+        return new JsonResponse(array());
         if(!$this->tableExistInCurrentDatabase($tablename)){
             $this->addFlash('error','This table does not exists in connected database !!!');
             return $this->redirectToRoute('dbs_index');
