@@ -15,6 +15,14 @@ use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 class TodoController extends Controller{
+
+    /**
+     * @Route("/todo/check", name="todo_check")
+     */
+    public function checkAction(){
+        return $this->render('default/homepage.html.twig');
+    }
+
 	/**
      * @Route("/", name="homepage")
      */
