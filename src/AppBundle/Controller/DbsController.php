@@ -128,7 +128,7 @@ class DbsController extends Controller{
         }
         $tableColumns = $this->getTableColumnsAsArray($tablename);
         array_shift($tableColumns);
-        //print_r($tableColumns);
+        print_r($tableColumns);
         return $this->render('dbs/altertable.html.twig',array(
                                                         'tablename'=>$tablename,
                                                         'tableColumns' =>$tableColumns,
