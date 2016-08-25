@@ -128,10 +128,7 @@ class DbsController extends Controller{
         }
         $tableColumns = $this->getTableColumnsAsArray($tablename);
         array_shift($tableColumns);
-        print_r($tableColumns);
-        echo "hello";
-        $this->addFlash('success','fuck this error');
-        //return $this->redirectToRoute('dbs_index');
+       
         return $this->render('dbs/editTableStructure.html.twig',array(
                                                         "tablename"=> $tablename,
                                                         "tableColumns" => $tableColumns,
