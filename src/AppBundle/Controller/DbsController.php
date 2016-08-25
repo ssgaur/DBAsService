@@ -122,7 +122,7 @@ class DbsController extends Controller{
      * @Route("/dbs/edittable/{tablename}", name="dbs_edit_table_structure")
      */
     public function editTableAction($tablename){
-        print_r($tableColumns);
+        echo "hello";
         return new JsonResponse(array());
         if(!$this->tableExistInCurrentDatabase($tablename)){
             $this->addFlash('error','This table does not exists in connected database !!!');
@@ -130,6 +130,8 @@ class DbsController extends Controller{
         }
         $tableColumns = $this->getTableColumnsAsArray($tablename);
         array_shift($tableColumns);
+        print_r($tableColumns);
+
         return $this->render('dbs/altertable.html.twig',array(
                                                         'tablename'=>$tablename,
                                                         'tableColumns' =>$tableColumns,
