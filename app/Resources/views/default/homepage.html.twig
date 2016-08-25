@@ -36,6 +36,11 @@
 
 <body id="page-top" class="index">
 
+  
+        
+        
+
+
     <!-- Navigation -->
     <nav id="mainNav" class="navbar navbar-default navbar-custom navbar-fixed-top">
         <div class="container">
@@ -69,8 +74,31 @@
                         <a class="page-scroll" href="#contact">Contact</a>
                     </li>
                 </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if app.user %}
+                          {% if is_granted('ROLE_DEV') == true  and app.user %}
+                              <li><a href="{{path('dbs_index')}}" class="page-scroll">ORM ACCESS</a></li>
+                              <li><a href="/todo/create" class="page-scroll">Create Todo</a></li>
+                              <li><a href="/todo/list" class="page-scroll">List Todos</a></li>
+                          {% else %}
+                              <li><a href="/todo/create" class="page-scroll">Create Todo</a></li>
+                              <li><a href="/todo/list" class="page-scroll">List Todos</a></li>
+                          {% endif %}
+                    {% else %}
+                        <li><a href="/register" class="page-scroll">Register</a></li>
+                    {% endif %}
+
+                  </ul>
+                  <ul class = "nav navbar-nav navbar-right">
+                    {% if app.user %}
+                        <li><a href="/logout" class="page-scroll">Logout</a></li>
+                        
+                    {% else %}
+                        <li><a href="/login" class="page-scroll">Login</a></li>
+                    {% endif %}
+                </ul>
             </div>
-            <!-- /.navbar-collapse -->
+
         </div>
         <!-- /.container-fluid -->
     </nav>
@@ -80,7 +108,7 @@
         <div class="container">
             <div class="intro-text">
                 <div class="intro-lead-in">Welcome To GUI ORM!</div>
-                <div class="intro-heading">It's Nice To Meet You</div>
+                <div class="intro-heading">Let's Play With Databases.</div>
                 <a href="#services" class="page-scroll btn btn-xl">Tell Me More</a>
             </div>
         </div>
@@ -225,34 +253,6 @@
                                 <i class="fa fa-plus fa-3x"></i>
                             </div>
                         </div>
-                        <img src="img/project/orm-7.png" class="img-responsive" alt="">
-                    </a>
-                    <div class="portfolio-caption">
-                        <h4>Create New Todo</h4>
-                        <p class="text-muted">Website Design</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6 portfolio-item">
-                    <a href="#portfolioModal6" class="portfolio-link" data-toggle="modal">
-                        <div class="portfolio-hover">
-                            <div class="portfolio-hover-content">
-                                <i class="fa fa-plus fa-3x"></i>
-                            </div>
-                        </div>
-                        <img src="img/project/orm-8.png" class="img-responsive" alt="">
-                    </a>
-                    <div class="portfolio-caption">
-                        <h4>The Todo List</h4>
-                        <p class="text-muted">Website Design</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6 portfolio-item">
-                    <a href="#portfolioModal6" class="portfolio-link" data-toggle="modal">
-                        <div class="portfolio-hover">
-                            <div class="portfolio-hover-content">
-                                <i class="fa fa-plus fa-3x"></i>
-                            </div>
-                        </div>
                         <img src="img/project/orm-9.png" class="img-responsive" alt="">
                     </a>
                     <div class="portfolio-caption">
@@ -302,6 +302,35 @@
                         <p class="text-muted">Website Design</p>
                     </div>
                 </div>
+                <div class="col-md-4 col-sm-6 portfolio-item">
+                    <a href="#portfolioModal6" class="portfolio-link" data-toggle="modal">
+                        <div class="portfolio-hover">
+                            <div class="portfolio-hover-content">
+                                <i class="fa fa-plus fa-3x"></i>
+                            </div>
+                        </div>
+                        <img src="img/project/orm-7.png" class="img-responsive" alt="">
+                    </a>
+                    <div class="portfolio-caption">
+                        <h4>Create New Todo</h4>
+                        <p class="text-muted">Website Design</p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6 portfolio-item">
+                    <a href="#portfolioModal6" class="portfolio-link" data-toggle="modal">
+                        <div class="portfolio-hover">
+                            <div class="portfolio-hover-content">
+                                <i class="fa fa-plus fa-3x"></i>
+                            </div>
+                        </div>
+                        <img src="img/project/orm-8.png" class="img-responsive" alt="">
+                    </a>
+                    <div class="portfolio-caption">
+                        <h4>The Todo List</h4>
+                        <p class="text-muted">Website Design</p>
+                    </div>
+                </div>
+                
             </div>
         </div>
     </section>
@@ -399,8 +428,8 @@
             <div class="row">
                 <div class="col-sm-4">
                     <div class="team-member">
-                        <img src="img/team/1.jpg" class="img-responsive img-circle" alt="">
-                        <h4>Kay Garland</h4>
+                        <img src="img/amit.jpeg" class="img-responsive img-circle" alt="">
+                        <h4>Amit Chajjer</h4>
                         <p class="text-muted">Lead Designer</p>
                         <ul class="list-inline social-buttons">
                             <li><a href="#"><i class="fa fa-twitter"></i></a>
@@ -414,8 +443,8 @@
                 </div>
                 <div class="col-sm-4">
                     <div class="team-member">
-                        <img src="img/team/2.jpg" class="img-responsive img-circle" alt="">
-                        <h4>Larry Parker</h4>
+                        <img src="img/me.jpeg" class="img-responsive img-circle" alt="">
+                        <h4>Shailendra Singh</h4>
                         <p class="text-muted">Lead Marketer</p>
                         <ul class="list-inline social-buttons">
                             <li><a href="#"><i class="fa fa-twitter"></i></a>
