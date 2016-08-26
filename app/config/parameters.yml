@@ -1,3 +1,4 @@
+# This file is auto-generated during the composer install
 parameters:
     database_host: ec2-50-19-227-171.compute-1.amazonaws.com
     database_port: 5432
@@ -9,14 +10,3 @@ parameters:
     mailer_user: null
     mailer_password: null
     secret: 50514e55c350a49a79e166f950dac9b16700b55d
-# parameters:
-#     database_host: 127.0.0.1
-#     database_port: null
-#     database_name: dbservice
-#     database_user: shail
-#     database_password: null
-#     mailer_transport: smtp
-#     mailer_host: 127.0.0.1
-#     mailer_user: null
-#     mailer_password: null
-#     secret: 50514e55c350a49a79e166f950dac9b16700b55d
