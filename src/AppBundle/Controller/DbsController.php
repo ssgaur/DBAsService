@@ -243,7 +243,7 @@ class DbsController extends Controller{
                     echo "An error occurred while creating your directory at ".$e->getPath();
                 }
 
-            } catch (\Doctrine\ORM\ORMException $e) {
+            } catch (\Exception $e) {
                 $this->addFlash('error','There was some error in dropping table. Please try again !!!');
             }
         }
@@ -336,7 +336,7 @@ class DbsController extends Controller{
         try {
             $result = $queryBuilder->execute()->fetchAll();
             $rowData = $result[0];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->addFlash('error','This table does not exists in connected database !!!');
         }
         return $this->render('dbs/editTableRow.html.twig',array(
