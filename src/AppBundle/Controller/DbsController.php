@@ -18,15 +18,7 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Doctrine\DBAL\Connection;
 
 class DbsController extends Controller{
-    /**
-     * @Route("/dbs/check", name="dbs_check")
-    */
-    public function checkAction(){
-        // $conn = $this->get('database_connection');
-        // $conn->export->createDatabase('events_db');
-        // $sdf = $this->getDoctrine();
-        // var_dump($sdf);
-    }
+  
 
     /**
      * @Route("/dbs/getTablesInfo", name="dbs_get_table_info")
