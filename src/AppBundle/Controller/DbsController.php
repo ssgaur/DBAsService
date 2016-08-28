@@ -18,15 +18,7 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Doctrine\DBAL\Connection;
 
 class DbsController extends Controller{
-    /**
-     * @Route("/dbs/check", name="dbs_check")
-    */
-    public function checkAction(){
-        // $conn = $this->get('database_connection');
-        // $conn->export->createDatabase('events_db');
-        // $sdf = $this->getDoctrine();
-        // var_dump($sdf);
-    }
+  
 
     /**
      * @Route("/dbs/getTablesInfo", name="dbs_get_table_info")
@@ -63,12 +55,26 @@ class DbsController extends Controller{
      */
     public function createNewTableAction(Request $request){
         $table_data = $request->request->all();
+        $tablename = $table_data['new_table_name'];
+        
         if(empty($table_data['new_table_name'])){
             $this->addFlash('error','Please provide some table name.');
             return $this->render('dbs/newtable.html.twig');
         }
 
-        $tablename = $table_data['new_table_name'];
+        $uniqueFields = $this->fieldsHasUniqueName($table_data);
+        if(!$uniqueFields){
+            $this->addFlash('error','Field names must be unique.');
+            $tableData = $this->newTableFormErrorPrevData($table_data);
+            // AsNewTable  is sending because it will use the edit table tempplate making usabale
+            return $this->render('dbs/editTableStructure.html.twig',array(
+                                                        "tablename"=> $tablename,
+                                                        "tableColumns" => $tableData,
+                                                        "columnCount" =>  count($tableData),
+                                                        "AsNewTable" =>true
+                                                    ));
+        }
+        
         $tableExist =  $this->tableExistInCurrentDatabase($tablename);
         if($tableExist){
             $this->addFlash('error','This table already exists in connected database !!!');
@@ -81,13 +87,23 @@ class DbsController extends Controller{
             $stmt->execute();
             $this->addFlash('success','You table has been created successfully.');
 
-            $s = new Utility();
-            $fieldStringForEntityGenerator = $this->createStringForEntityGenerator($table_data);
-            $s->createTABLE($this->get('service_container'), $fieldStringForEntityGenerator , $tablename);
+            // $s = new Utility();
+            // $fieldStringForEntityGenerator = $this->createStringForEntityGenerator($table_data);
+            // $s->createTABLE($this->get('service_container'), $fieldStringForEntityGenerator , $tablename);
 
             return $this->redirectToRoute('dbs_index');
-        } catch (\Exception $e) {
+        } 
+        catch (\Exception $e) {
             $this->addFlash('error','Some error in creating table.');
+            $tableData = $this->newTableFormErrorPrevData($table_data);
+
+            // AsNewTable  is sending because it will use the edit table tempplate making usabale
+            return $this->render('dbs/editTableStructure.html.twig',array(
+                                                        "tablename"=> $tablename,
+                                                        "tableColumns" => $tableData,
+                                                        "columnCount" =>  count($tableData),
+                                                        "AsNewTable" =>true
+                                                    ));
         }
         return $this->render('dbs/newtable.html.twig');
     }
@@ -126,13 +142,16 @@ class DbsController extends Controller{
             $this->addFlash('error','This table does not exists in connected database !!!');
             return $this->redirectToRoute('dbs_index');
         }
+        if($tablename == 'users' || $tablename == 'todo'){
+            $this->addFlash('error','No One can not alter me. I am heart of this application. If I am altered, U will cry');
+            return $this->redirectToRoute('dbs_index');
+        }
         $tableColumns = $this->getTableColumnsAsArray($tablename);
         array_shift($tableColumns);
-        //print_r($tableColumns);
-        return $this->render('dbs/altertable.html.twig',array(
-                                                        'tablename'=>$tablename,
-                                                        'tableColumns' =>$tableColumns,
-                                                        'columnCount' => count($tableColumns)
+        return $this->render('dbs/editTableStructure.html.twig',array(
+                                                        "tablename"=> $tablename,
+                                                        "tableColumns" => $tableColumns,
+                                                        "columnCount" =>  count($tableColumns)
                                                     ));
     }
 
@@ -147,33 +166,52 @@ class DbsController extends Controller{
             return $this->render('dbs/newtable.html.twig');
         }
 
+        $uniqueFields = $this->fieldsHasUniqueName($table_data);
+        if(!$uniqueFields){
+            $this->addFlash('error','Field name must be unique.');
+        }
+
         $tablename = $table_data['new_table_name'];
         $oldTableName = $table_data['tablename'];
+
+        if($tablename == 'users' || $tablename == 'todo' 
+                    || $oldTableName == 'users' || $oldTableName == 'todo'){
+            $this->addFlash('error','No One can not alter me. I am heart of this application. If I am altered, U will cry');
+            return $this->redirectToRoute('dbs_index');
+        }
         try {
             $this->getSchemaManager()->dropTable($tablename);
             
             $sql = $this->createSQLforCreateTable($table_data);
             $stmt = $this->getDatabaseConnection()->prepare($sql);
             $stmt->execute();
-            $this->addFlash('success','You table has been created successfully.');
+            $this->addFlash('success','You table has been Updated successfully.');
                 $fs = new Filesystem();
                 try {
 
                     $fs->remove('../src/AppBundle/Entity/'.$oldTableName.'.php');
                     $fs->remove('../src/AppBundle/Repository/'.$oldTableName.'Repository'.'.php');
-                   // $fs->remove('../src/AppBundle/Entity/lola.php');
                
                 } catch (IOExceptionInterface $e) {
                     echo "An error occurred while creating your directory at ".$e->getPath();
                 }
 
-            $s = new Utility();
-            $fieldStringForEntityGenerator = $this->createStringForEntityGenerator($table_data);
-            $s->createTABLE($this->get('service_container'), $fieldStringForEntityGenerator , $tablename);
+            // $s = new Utility();
+            // $fieldStringForEntityGenerator = $this->createStringForEntityGenerator($table_data);
+            // $s->createTABLE($this->get('service_container'), $fieldStringForEntityGenerator , $tablename);
 
             return $this->redirectToRoute('dbs_index');
         } catch (\Exception $e) {
             $this->addFlash('error','Some error in updating table structure.');
+            $tableData = $this->newTableFormErrorPrevData($table_data);
+
+            // AsNewTable  is sending because it will use the edit table tempplate making usabale
+            return $this->render('dbs/editTableStructure.html.twig',array(
+                                                        "tablename"=> $tablename,
+                                                        "tableColumns" => $tableData,
+                                                        "columnCount" =>  count($tableData),
+                                                        "AsNewTable" =>true
+                                                    ));
         }
         return $this->redirectToRoute('dbs_edit_table_structure', array('tablename' => $oldTableName), 301);
     }
@@ -186,8 +224,9 @@ class DbsController extends Controller{
         if(!$tableExist){
             $this->addFlash('error','This table does not exists in connected database !!!');
         }
-        else if($tablename == 'users' || $tablename == 'todo'){
-
+        if($tablename == 'users' || $tablename == 'todo'){
+            $this->addFlash('error','No One can not drop me. I am heart of this application. If I die, U die');
+            return $this->redirectToRoute('dbs_index');
         }
         else{
             try {
@@ -204,7 +243,7 @@ class DbsController extends Controller{
                     echo "An error occurred while creating your directory at ".$e->getPath();
                 }
 
-            } catch (\Doctrine\ORM\ORMException $e) {
+            } catch (\Exception $e) {
                 $this->addFlash('error','There was some error in dropping table. Please try again !!!');
             }
         }
@@ -297,7 +336,7 @@ class DbsController extends Controller{
         try {
             $result = $queryBuilder->execute()->fetchAll();
             $rowData = $result[0];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->addFlash('error','This table does not exists in connected database !!!');
         }
         return $this->render('dbs/editTableRow.html.twig',array(
@@ -389,103 +428,6 @@ class DbsController extends Controller{
         return $this->redirectToRoute('dbs_browse_table',array('tablename'=>$tablename),301);
     }
 
-    /*
-       ##################################################################################
-       ##################################################################################
-       ##################################################################################
-       ##################################################################################
-       ###############################   END Of Controller Function     #################
-       ##################################################################################
-       ##################################################################################
-       ##################################################################################
-       ##################################################################################
-       ##################################################################################
-       ##################################################################################
-    */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-        CREATE TABLE IF NOT EXISTS user  (
-            id int(11) AUTO_INCREMENT NOT NULL,
-            firstname varchar(255) NOT NULL,
-            email varchar(255) NOT NULL,
-            PRIMARY KEY(id) 
-        );
-
-        $table_data = 
-            Array
-            (
-                [new_table_name] => sometabek
-                [field_name] => Array
-                    (
-                        [0] => col1
-                        [1] => col2
-                        [2] => col3
-                        [3] => col4
-                    )
-
-                [field_type] => Array
-                    (
-                        [0] => varchar
-                        [1] => int
-                        [2] => text
-                        [3] => timestamp
-                    )
-
-                [field_length] => Array
-                    (
-                        [0] => 255
-                        [1] => 
-                        [2] => 
-                        [3] => 
-                    )
-
-                [field_null] => Array
-                    (
-                        [1] => on
-                        [2] => on
-                    )
-
-            )
-        
-    */
- 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-    
 
 
     /*
@@ -601,14 +543,40 @@ class DbsController extends Controller{
         }
         return $tableColumns;
     }
-    private function arrayHasUniqueValues($array){
-        $arrayLength = count($array);
-        $newUniqueArray = array_unique($array);
+    private function fieldsHasUniqueName($table_data){
+        $fieldArray = $this->makeProperArrayFromUserInputColumns($table_data);
+        $tempArray = array();
+        foreach ($fieldArray as $key => $field) {
+            array_push($tempArray, $field['columnName']);
+        }
+
+        $arrayLength = count($tempArray);
+        $newUniqueArray = array_unique($tempArray);
         $uniqueArrayLength = count($newUniqueArray);
         if($arrayLength == $uniqueArrayLength)
             return true;
         else 
             return false;
+    }
+    private function newTableFormErrorPrevData($table_data){
+        $df=  $this->makeProperArrayFromUserInputColumns($table_data);
+        $fieldDisplayIfFormError = array();
+        foreach ($df as $key => $field) {
+           $fieldDisplayIfFormError[$field['columnName']] = array();
+           $fieldDisplayIfFormError[$field['columnName']]['size'] = '';
+           $fieldDisplayIfFormError[$field['columnName']]['notnull'] = 0;
+           $fieldDisplayIfFormError[$field['columnName']]['type']= '';
+           if(isset($field['columnDatatype'])){
+                $fieldDisplayIfFormError[$field['columnName']]['type'] = $field['columnDatatype'];
+           }
+           if(isset($field['columnSize'])){
+                $fieldDisplayIfFormError[$field['columnName']]['size'] = $field['columnSize'];
+           }
+           if(isset($field['columnNotnull'])){
+                $fieldDisplayIfFormError[$field['columnName']]['notnull'] = 1;
+           }
+        }
+        return $fieldDisplayIfFormError;
     }
 
 }

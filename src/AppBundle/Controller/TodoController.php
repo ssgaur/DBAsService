@@ -15,12 +15,21 @@ use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 class TodoController extends Controller{
+
+    /**
+     * @Route("/todo/check", name="todo_check")
+     */
+    public function checkAction(){
+        return $this->render('default/homepage.html.twig');
+    }
+
 	/**
      * @Route("/", name="homepage")
      */
-    public function indexAction(Request $request){
+    public function indexAction(){
         // replace this example code with whatever you need
-        return $this->render('default/index.html.twig');
+        //return $this->render('default/index.html.twig');
+        return $this->render('default/homepage.html.twig');
     }
 
     /**
@@ -54,7 +63,7 @@ class TodoController extends Controller{
     			->add('category', TextType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
     			->add('description', TextareaType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
     			->add('priority', ChoiceType::class, array('choices'=>array('Low'=>'Low','High'=>'high', 'Moderate'=>'Moderate'), 'attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
-    			->add('due_date', DateTimeType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
+    			->add('due_date', DateTimeType::class, array('attr' => array('class'=>'','style'=>'margin-bottom:15px')))
     			->add('submit', SubmitType::class, array('label'=>'Create ToDo','attr' => array('class'=>'btn btn-success','style'=>'margin-bottom:15px')))
     			->getForm();
     	$form->handleRequest($request);
@@ -107,7 +116,7 @@ class TodoController extends Controller{
                 ->add('category', TextType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
                 ->add('description', TextareaType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
                 ->add('priority', ChoiceType::class, array('choices'=>array('Low'=>'Low','High'=>'high', 'Moderate'=>'Moderate'), 'attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
-                ->add('due_date', DateTimeType::class, array('attr' => array('class'=>'form-control','style'=>'margin-bottom:15px')))
+                ->add('due_date', DateTimeType::class, array('attr' => array('class'=>'','style'=>'margin-bottom:15px')))
                 ->add('submit', SubmitType::class, array('label'=>'Update ToDo','attr' => array('class'=>'btn btn-success','style'=>'margin-bottom:15px')))
                 ->getForm();
         $form->handleRequest($request);

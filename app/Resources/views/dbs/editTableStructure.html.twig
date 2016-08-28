@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 {% block body %}
     <div class="row top-buffer  border-1x">
-              <form method="post" action="{{ path('dbs_alter_table') }}" name="new_table_form">
+              <form method="post" action="{% if AsNewTable is defined %}{{ path('dbs_create_new_table') }}{% else  %}{{ path('dbs_alter_table') }}{% endif %}" name="new_table_form">
                         <table class="table table-striped" id="newtable-create"> 
                             <div class="sort-num-box">
                                 <strong>Table Name (Unique):</strong> <input type="text" name="new_table_name" class="" placeholder="New table name" value="{{tablename}}">
@@ -39,11 +39,13 @@
                         <div class="sort-num-box-bottom">
                                 <div class="sort-box">   </div>
                                 <div class="num-row-box">
-                                      <input type="submit" value="Create Now" class="btn btn-primary btn-xs">
+                                      <input type="submit" value="Update Now" class="btn btn-primary btn-xs">
                                       OR
                                       <a href="#"  id="new-table-column" class="btn btn-primary btn-xs"> Add One More Column </a>
                                 </div>
                         </div>
-                    </div>
               </form>
+    </div>
+              
+
 {% endblock %}
