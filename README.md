@@ -1,5 +1,3 @@
-[![Amazon EC2](https://codeclimate.com/repos/57b56dabbd7db80dbe00344e/badges/5865eeec766a9fb5d895/gpa.svg)](https://codeclimate.com/repos/57b56dabbd7db80dbe00344e/feed)
-
 # GUI ORM - A Web Interface for Doctrine : A Symfony ORM
 
 This project is an use case of existing Doctrine ORM of symfony. It gives user a full control over "connected" database to the symfony app. This interface basically provides a GUI access for "connected" database over CLI. 
